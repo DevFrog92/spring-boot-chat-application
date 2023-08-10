@@ -49,3 +49,6 @@ Spring Boot와 WebSocket을 이용한 기본적인 실시간 채팅 기능을 �
     - 관리자에게 문의할 수 있다.(TBD)
 
 ### ERD(WIP)
+
+![Screenshot 2023-08-10 at 4 26 54 PM](https://github.com/DevFrog92/spring-boot-chat-application/assets/82052272/321d5b73-e569-4cec-9442-c64e8bdcdc9a)
+
