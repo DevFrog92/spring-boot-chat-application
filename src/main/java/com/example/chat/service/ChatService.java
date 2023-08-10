@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.*;
 
@@ -19,15 +20,16 @@ public class ChatService {
     private final ObjectMapper objectMapper;
     private Map<String, ChatRoom> chatRooms;
 
+    @PostConstruct
     private void init() {
         chatRooms = new LinkedHashMap<>();
     }
 
-    private List<ChatRoom> findAllRoom() {
+    public List<ChatRoom> findAllRoom() {
         return new ArrayList<>(chatRooms.values());
     }
 
-    private ChatRoom findRoomById(String roomId) {
+    public ChatRoom findRoomById(String roomId) {
         return chatRooms.get(roomId);
     }
 
@@ -37,7 +39,7 @@ public class ChatService {
                 .roomId(roomId)
                 .name(name)
                 .build();
-
+        log.info("create new room: {}", newRoom);
         chatRooms.put(roomId, newRoom);
         return newRoom;
     }
