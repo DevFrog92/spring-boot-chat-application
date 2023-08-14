@@ -11,8 +11,9 @@ spring:
       enabled: true
     restart:
       enabled: false
-    freemarker:
-      cache: false
+  freemarker:
+    cache: false
+    suffix: .ftl
   jpa:
     hibernate:
       ddl-auto: create
