@@ -7,31 +7,67 @@
     <!-- CSS -->
     <link rel="stylesheet" href="/webjars/bootstrap/4.3.1/dist/css/bootstrap.min.css">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
         [v-cloak] {
             display: none;
         }
+
+        body {
+            padding-top: 3rem;
+            color: #292929;
+        }
+
+        .input-group-prepend {
+            border: 1px solid lightgray;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0.5rem;
+            border-radius: 4px;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .input-form {
+            outline: none;
+            border: 1px solid lightgray;
+            padding: 0.5rem;
+            flex-grow: 1;
+        }
+
+        .btn-border {
+            border-radius: 4px;
+
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            padding: 0.5rem;
+        }
+
+
     </style>
 </head>
 <body>
 <div class="container" id="app" v-cloak>
     <div class="row">
-        <div class="col-md-12">
-            <h3>채팅방 리스트</h3>
+        <div class="col-md-12 mb-4">
+            <h3>채팅방 목록</h3>
         </div>
     </div>
-    <div class="input-group">
+    <div class="input-group mb-4">
         <div class="input-group-prepend">
-            <label class="input-group-text">방제목</label>
+            <label class="input-group-label mb-0">채팅방 제목</label>
         </div>
-        <input type="text" class="form-control" v-model="room_name" @keyup.enter="createRoom">
+        <input type="text" class="input-form" v-model="room_name" @keyup.enter="createRoom"/>
         <div class="input-group-append">
-            <button class="btn btn-primary" type="button" @click="createRoom">채팅방 개설</button>
+            <button class="btn btn-primary btn-border" type="button" @click="createRoom">채팅방 만들기</button>
         </div>
     </div>
     <ul class="list-group">
-        <li class="list-group-item list-group-item-action"
-            v-for="item in chatrooms"
-            v-bind:key="item.roomId"
+        <li class="list-group-item list-group-item-action" v-for="item in chatrooms" v-bind:key="item.roomId"
             v-on:click="enterRoom(item.roomId)">
             {{item.name}}
         </li>
