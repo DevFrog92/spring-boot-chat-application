@@ -41,7 +41,6 @@
 
         .btn-border {
             border-radius: 4px;
-
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
             padding: 0.5rem;
@@ -55,6 +54,9 @@
     <div class="row">
         <div class="col-md-12 mb-4">
             <h3>채팅방 목록</h3>
+        </div>
+        <div class="col-md-6 text-right">
+            <a class="btn btn-primary btn-sm" href="/logout">로그아웃</a>
         </div>
     </div>
     <div class="input-group mb-4">
@@ -91,7 +93,7 @@
         },
         methods: {
             findAllRoom: function() {
-                console.log("find all rooms")
+                console.log("find all rooms");
                 axios.get('/chat/rooms').then(response => { this.chatrooms = response.data; });
             },
             createRoom: function() {
@@ -100,7 +102,7 @@
                     return;
                 } else {
                     var params = new URLSearchParams();
-                    params.append("name",this.room_name);
+                    params.append("name", this.room_name);
                     axios.post('/chat/room', params)
                         .then(
                             response => {
@@ -112,9 +114,8 @@
                         .catch( response => { alert("채팅방 개설에 실패하였습니다."); } );
                 }
             },
-            enterRoom: function(roomId) {
-                var sender = prompt('대화명을 입력해 주세요.');
-                localStorage.setItem('wschat.sender',sender);
+            enterRoom: function(roomId, roomName) {
+                localStorage.setItem('wschat.roomName',roomName);
                 localStorage.setItem('wschat.roomId',roomId);
                 location.href="/chat/room/enter/"+roomId;
             }

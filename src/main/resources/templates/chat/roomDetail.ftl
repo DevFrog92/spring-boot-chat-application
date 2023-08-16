@@ -109,9 +109,9 @@
     </ul>
     <div class="input-group">
 
-        <input type="text" class="form-control input-form" v-model="message" @keyup.enter="sendMessage">
+        <input type="text" class="form-control input-form" v-model="message" @keyup.enter="sendMessage('MESSAGE')">
         <div class="input-group-append">
-            <button class="btn btn-primary btn-border" type="button" @click="sendMessage">보내기</button>
+            <button class="btn btn-primary btn-border" type="button" @click="sendMessage('MESSAGE')">보내기</button>
         </div>
     </div>
     <div></div>
@@ -126,11 +126,14 @@
     // websocket & stomp initialize
     var sock = new SockJS("/ws-stomp");
     var ws = Stomp.over(sock);
+    var reconnect = 0;
+
     // vue.js
     var vm = new Vue({
         el: '#app',
         data: {
             roomId: '',
+            roomName: '',
             room: {},
             sender: '',
             message: '',
@@ -138,8 +141,23 @@
         },
         created() {
             this.roomId = localStorage.getItem('wschat.roomId');
-            this.sender = localStorage.getItem('wschat.sender');
-            this.findRoom();
+            this.roomName = localStorage.getItem('wschat.roomName');
+            var _this = this;
+
+            axios.get('/chat/user')
+                .then(response => {
+                   _this.token = response.data.token;
+                   ws.connect({"token": _this.token}, function(frame) {
+                       ws.subscribe("/sub/chat/room/"+_this.roomId, function(message) {
+                           var recv = JSON.parse(message.body);
+                           _this.recvMessage(recv);
+                       });
+                       _this.sendMessage('JOIN');
+                   }, function (error) {
+                       alert("서버 연결에 실패 하였습니다. 다시 접속해 주세요.");
+                       location.href = "/chat/room";
+                   });
+                });
         },
         computed: {
           isOwner() {
@@ -150,29 +168,16 @@
           }
         },
         methods: {
-            findRoom: function() {
-                axios.get('/chat/room/'+this.roomId).then(response => { this.room = response.data; });
-            },
-            sendMessage: function() {
-                ws.send("/pub/chat/message", {}, JSON.stringify({type:'MESSAGE', roomId:this.roomId, sender:this.sender, message:this.message}));
+            sendMessage: function(type) {
+                ws.send("/pub/chat/message", {"token": this.token},
+                    JSON.stringify({type: type, roomId:this.roomId, message:this.message}));
                 this.message = '';
             },
             recvMessage: function(recv) {
-                this.messages.push({"type":recv.type,"sender":recv.type=='JOIN'?'[알림]':recv.sender,"message":recv.message});
+                this.messages.push({"type":recv.type,"sender":recv.sender,"message":recv.message});
             }
         }
     });
-    // pub/sub event
-    ws.connect({}, function(frame) {
-        ws.subscribe("/sub/chat/room/"+vm.$data.roomId, function(message) {
-            var recv = JSON.parse(message.body);
-            vm.recvMessage(recv);
-        });
-        ws.send("/pub/chat/message", {}, JSON.stringify({type:'JOIN', roomId:vm.$data.roomId, sender:vm.$data.sender}));
-    }, function(error) {
-        alert("error "+error);
-    });
-
 </script>
 </body>
 </html>
