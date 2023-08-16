@@ -26,7 +26,6 @@ public class ChatRoomRepository {
     @PostConstruct
     private void init() {
         opsHashChatRoom = redisTemplate.opsForHash();
-        topics = new HashMap<>();
     }
 
     public List<ChatRoom> findAllRoom() {
@@ -38,6 +37,7 @@ public class ChatRoomRepository {
     }
 
     // redis hash 에 저장한다.
+    // 체팅방 생성: 서버간 채팅방 공유를 위해 redis hash 에 저장한다.
     public ChatRoom createChatRoom(String name) {
         ChatRoom chatRoom = ChatRoom.create(name);
         opsHashChatRoom.put(CHAT_ROOMS, chatRoom.getRoomId(), chatRoom);
@@ -47,11 +47,12 @@ public class ChatRoomRepository {
     //
     public void enterChatRoom(String roomId) {
         ChannelTopic topic = topics.get(roomId);
+
         if (topic == null) {
             topic = new ChannelTopic(roomId);
         }
 
-        redisMessageListenerContainer.addMessageListener(redisSubscriber, topic);
+//        redisMessageListenerContainer.addMessageListener(redisSubscriber, topic);
         topics.put(roomId, topic);
     }
 
