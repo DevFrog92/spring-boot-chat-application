@@ -14,18 +14,13 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 public class RedisConfig {
 
-    /**
-     * 단일 topic 사용을 위한 Bean 설정
-     */
+    // set topic to single
     @Bean
     public ChannelTopic channelTopic() {
         return new ChannelTopic("chatroom");
     }
 
-    /**
-     * redis 에 발행(publish) 된 메시지 처리를 위한 리스너 설정
-     */
-
+    // setup link stomp websocket with redis message broker
     @Bean
     public RedisMessageListenerContainer redisMessageListener(
             RedisConnectionFactory connectionFactory,
@@ -35,15 +30,14 @@ public class RedisConfig {
 
         RedisMessageListenerContainer container
                 = new RedisMessageListenerContainer();
+
         container.setConnectionFactory(connectionFactory);
         container.addMessageListener(listenerAdapter, channelTopic);
 
         return container;
     }
 
-    /**
-     * redis 에 발행(publish) 된 메시지 처리를 위한 리스너 설정
-     */
+    // setup stomp message broker action when get the push from redis
     @Bean
     public MessageListenerAdapter listenerAdapter(RedisSubscriber subscriber) {
         return new MessageListenerAdapter(
@@ -54,11 +48,18 @@ public class RedisConfig {
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate(
-            RedisConnectionFactory connectionFactory) {
+            RedisConnectionFactory connectionFactory
+    ) {
+
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-        redisTemplate.setConnectionFactory(connectionFactory); // redis 데이터베이스에 연결하고 통신하는 데 사용된다.
-        redisTemplate.setKeySerializer(new StringRedisSerializer());// redis 에 저장되는 키의 질렬화 방식을 설정한다.
-        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(String.class)); // redis 에 저장되는 값의 직렬화 방식을 설정한다.
+
+        // connect with redis database
+        redisTemplate.setConnectionFactory(connectionFactory);
+        // setup serializer method
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        // setup value serializer method
+        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(String.class));
+
         return redisTemplate;
     }
 }
