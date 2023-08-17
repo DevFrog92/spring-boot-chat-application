@@ -171,7 +171,7 @@
         },
         methods: {
             sendMessage: function(type) {
-                ws.send("/heap/chat/message", {"token": this.token},
+                ws.send("/pub/chat/message", {"token": this.token},
                     JSON.stringify({type: type, roomId:this.roomId, message:this.message}));
 
                 this.message = '';
