@@ -124,12 +124,12 @@
 <script src="/webjars/stomp-websocket/2.3.3-1/stomp.min.js"></script>
 <script>
     // websocket & stomp initialize
-    var sock = new SockJS("/ws-stomp");
-    var ws = Stomp.over(sock);
-    var reconnect = 0;
+    const sock = new SockJS("/ws-stomp");
+    const ws = Stomp.over(sock);
+    const reconnect = 0;
 
     // vue.js
-    var vm = new Vue({
+    const vm = new Vue({
         el: '#app',
         data: {
             roomId: '',
@@ -140,21 +140,24 @@
             messages: []
         },
         created() {
-            this.roomId = localStorage.getItem('wschat.roomId');
-            this.roomName = localStorage.getItem('wschat.roomName');
-            var _this = this;
+            this.roomId = localStorage.getItem('chatRoom.roomId');
+            this.roomName = localStorage.getItem('chatRoom.roomName');
+            const _this = this;
 
             axios.get('/chat/user')
                 .then(response => {
                    _this.token = response.data.token;
                    ws.connect({"token": _this.token}, function(frame) {
+                       console.log("frame", frame);
+
                        ws.subscribe("/sub/chat/room/"+_this.roomId, function(message) {
-                           var recv = JSON.parse(message.body);
-                           _this.recvMessage(recv);
+                           const subscribe = JSON.parse(message.body);
+                           _this.subscribeMessage(subscribe);
                        });
+
                        _this.sendMessage('JOIN');
                    }, function (error) {
-                       alert("서버 연결에 실패 하였습니다. 다시 접속해 주세요.");
+                       alert("Connection fail!!", error);
                        location.href = "/chat/room";
                    });
                 });
@@ -162,19 +165,28 @@
         computed: {
           isOwner() {
               return (name) => {
-                  console.log(name, this.sender);
                   return name === this.sender ? "owner" : "";
               }
           }
         },
         methods: {
             sendMessage: function(type) {
-                ws.send("/pub/chat/message", {"token": this.token},
+                ws.send("/heap/chat/message", {"token": this.token},
                     JSON.stringify({type: type, roomId:this.roomId, message:this.message}));
+
                 this.message = '';
             },
-            recvMessage: function(recv) {
-                this.messages.push({"type":recv.type,"sender":recv.sender,"message":recv.message});
+            subscribeMessage: function(subscribe) {
+                this.messages.push(
+                    {
+                        "type":subscribe.type,
+                        "sender":subscribe.sender,
+                        "message":subscribe.message
+                    }
+                );
+
+                const list = document.querySelector(".message-list");
+                list.scrollTo(list.scrollHeight);
             }
         }
     });

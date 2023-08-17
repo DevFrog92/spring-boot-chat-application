@@ -51,8 +51,8 @@
 </head>
 <body>
 <div class="container" id="app" v-cloak>
-    <div class="row">
-        <div class="col-md-12 mb-4">
+    <div class="row mb-4">
+        <div class="col-md-6 ">
             <h3>채팅방 목록</h3>
         </div>
         <div class="col-md-6 text-right">
@@ -63,13 +63,13 @@
         <div class="input-group-prepend">
             <label class="input-group-label mb-0">채팅방 제목</label>
         </div>
-        <input type="text" class="input-form" v-model="room_name" @keyup.enter="createRoom"/>
+        <input type="text" class="input-form" v-model="roomName" @keyup.enter="createRoom"/>
         <div class="input-group-append">
             <button class="btn btn-primary btn-border" type="button" @click="createRoom">채팅방 만들기</button>
         </div>
     </div>
     <ul class="list-group">
-        <li class="list-group-item list-group-item-action" v-for="item in chatrooms" v-bind:key="item.roomId"
+        <li class="list-group-item list-group-item-action" v-for="item in chatRooms" v-bind:key="item.roomId"
             v-on:click="enterRoom(item.roomId)">
             {{item.name}}
         </li>
@@ -81,42 +81,43 @@
 <script src="/webjars/bootstrap/4.3.1/dist/js/bootstrap.min.js"></script>
 <script src="/webjars/sockjs-client/1.1.2/sockjs.min.js"></script>
 <script>
-    var vm = new Vue({
+    const vm = new Vue({
         el: '#app',
         data: {
-            room_name : '',
-            chatrooms: [
-            ]
+            roomName : '',
+            chatRooms: []
         },
         created() {
             this.findAllRoom();
         },
         methods: {
             findAllRoom: function() {
-                console.log("find all rooms");
-                axios.get('/chat/rooms').then(response => { this.chatrooms = response.data; });
+                axios.get('/chat/rooms').then(response => { this.chatRooms = response.data; });
             },
             createRoom: function() {
-                if("" === this.room_name) {
-                    alert("방 제목을 입력해 주십시요.");
+                if("" === this.roomName) {
+                    alert("Please enter a room title.");
                     return;
                 } else {
                     var params = new URLSearchParams();
-                    params.append("name", this.room_name);
+                    params.append("name", this.roomName);
                     axios.post('/chat/room', params)
                         .then(
                             response => {
                                 alert(response.data.name+"방 개설에 성공하였습니다.")
-                                this.room_name = '';
+                                this.roomName = '';
                                 this.findAllRoom();
                             }
                         )
-                        .catch( response => { alert("채팅방 개설에 실패하였습니다."); } );
+                        .catch( response => {
+                                alert("채팅방 개설에 실패하였습니다.");
+                            }
+                        );
                 }
             },
             enterRoom: function(roomId, roomName) {
-                localStorage.setItem('wschat.roomName',roomName);
-                localStorage.setItem('wschat.roomId',roomId);
+                localStorage.setItem('chatRoom.roomName',roomName);
+                localStorage.setItem('chatRoom.roomId',roomId);
                 location.href="/chat/room/enter/"+roomId;
             }
         }
