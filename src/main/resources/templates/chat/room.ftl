@@ -72,7 +72,9 @@
         <li class="list-group-item list-group-item-action" v-for="item in chatRooms" v-bind:key="item.roomId"
             v-on:click="enterRoom(item.roomId)">
             {{item.name}}
+            <h6>{{item.name}} <span class="badge badge-info badge-pill">{{item.userCount}}</span></h6>
         </li>
+
     </ul>
 </div>
 <!-- JavaScript -->

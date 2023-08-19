@@ -91,8 +91,14 @@
 </head>
 <body>
 <div class="container" id="app" v-cloak>
-    <div class="chat-room-title mb-4">
-        <h2>{{room.name}}</h2>
+    <div class="row">
+        <div class="col-md-6 chat-room-title mb-4">
+            <h2>{{room.name}}</h2> <span class="badge badge-info badge-pill">{{userCount}}</span></h4>
+        </div>
+        <div class="col-md-6 text-right">
+            <a class="btn btn-primary btn-sm" href="/logout">로그아웃</a>
+            <a class="btn btn-info btn-sm" href="/chat/room">채팅방 나가기</a>
+        </div>
     </div>
     <ul class="list-group message-list">
         <li v-for="message in messages" class="message-item-wrapper" :class="isOwner(message.sender)">
@@ -137,7 +143,8 @@
             room: {},
             sender: '',
             message: '',
-            messages: []
+            messages: [],
+            userCount: 0
         },
         created() {
             this.roomId = localStorage.getItem('chatRoom.roomId');
@@ -154,8 +161,6 @@
                            const subscribe = JSON.parse(message.body);
                            _this.subscribeMessage(subscribe);
                        });
-
-                       _this.sendMessage('JOIN');
                    }, function (error) {
                        alert("Connection fail!!", error);
                        location.href = "/chat/room";
@@ -177,6 +182,7 @@
                 this.message = '';
             },
             subscribeMessage: function(subscribe) {
+                this.userCount = subscribe.userCount;
                 this.messages.push(
                     {
                         "type":subscribe.type,
@@ -186,7 +192,9 @@
                 );
 
                 const list = document.querySelector(".message-list");
-                list.scrollTo(list.scrollHeight);
+                if(list != null) {
+                    list.scrollTo(list.scrollHeight);
+                }
             }
         }
     });
