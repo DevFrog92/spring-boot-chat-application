@@ -1,5 +1,5 @@
 package com.example.chat.dto;
 
 public enum ChatMessageType {
-    JOIN, MESSAGE;
+    JOIN, MESSAGE, QUIT;
 }
