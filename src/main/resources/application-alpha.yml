@@ -32,7 +32,9 @@ spring:
   output:
     ansi:
       enabled: always
-
+  jwt:
+    secret:
+      key: govlepe@$&
 logging:
   level:
     org:
