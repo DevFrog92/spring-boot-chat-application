@@ -1,6 +1,6 @@
 package com.example.chat.dto;
 
-import com.example.chat.domain.LoginInfo;
+import com.example.chat.domain.MemberInfo;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,13 +9,13 @@ import lombok.Setter;
 public class ChatEnterDto {
     private ChatMessageType type;
     private Long roomId;
-    private LoginInfo loginInfo;
+    private MemberInfo loginInfo;
 
     @Override
     public String toString() {
         return "ChatEnterDto{" +
                 "type=" + type +
-                ", roomId='" + roomId + '\'' +
+                ", roomId=" + roomId +
                 ", loginInfo=" + loginInfo +
                 '}';
     }
