@@ -1,6 +1,6 @@
 package com.example.chat.config;
 
-import com.example.chat.handler.StompHandler;
+import com.example.chat.config.handler.StompHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
