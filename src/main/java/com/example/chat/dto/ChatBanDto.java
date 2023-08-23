@@ -9,16 +9,19 @@ import lombok.Setter;
 public class ChatBanDto {
     private ChatMessageType type;
     private Long roomId;
-    private MemberInfo loginInfo;
-    private String banUserName;
+    private MemberInfo requestMemberInfo;
+    private MemberInfo banMemberInfo;
+    private Long requestMemberId;
+    private String banMemberName;
+    private Long banMemberId;
 
     @Override
     public String toString() {
         return "ChatBanDto{" +
                 "type=" + type +
                 ", roomId=" + roomId +
-                ", loginInfo=" + loginInfo +
-                ", banUserName='" + banUserName + '\'' +
+                ", memberInfo=" + requestMemberInfo +
+                ", banUserName='" + banMemberName + '\'' +
                 '}';
     }
 }
