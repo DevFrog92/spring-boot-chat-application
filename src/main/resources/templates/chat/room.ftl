@@ -45,8 +45,6 @@
             border-bottom-left-radius: 0;
             padding: 0.5rem;
         }
-
-
     </style>
 </head>
 <body>
@@ -69,10 +67,11 @@
         </div>
     </div>
     <ul class="list-group">
-        <li class="list-group-item list-group-item-action" v-for="item in chatRooms" v-bind:key="item.roomId"
-            v-on:click="enterRoom(item.roomId)">
-            {{item.name}}
-            <h6>{{item.name}} <span class="badge badge-info badge-pill">{{item.userCount}}</span></h6>
+        <li class="list-group-item list-group-item-action" v-for="item in chatRooms" v-bind:key="item.id">
+            {{item.roomName}}
+            <h6>{{item.roomName}} <span class="badge badge-info badge-pill">{{item.participationNum}}</span></h6>
+            <div @click="checkPermission(item.id, item.member, item.roomName)">입장</div>
+            <div v-if="isOwner(item.member.id)" @click="deleteRoom(item.id, item.member)">삭제</div>
         </li>
 
     </ul>
@@ -82,17 +81,43 @@
 <script src="/webjars/axios/0.17.1/dist/axios.min.js"></script>
 <script src="/webjars/bootstrap/4.3.1/dist/js/bootstrap.min.js"></script>
 <script src="/webjars/sockjs-client/1.1.2/sockjs.min.js"></script>
+<script src="/webjars/stomp-websocket/2.3.3-1/stomp.min.js"></script>
 <script>
     const vm = new Vue({
         el: '#app',
         data: {
             roomName : '',
-            chatRooms: []
+            chatRooms: [],
+            memberInfo: null
         },
         created() {
             this.findAllRoom();
+            this.getMemberInfo();
+        },
+        computed: {
+            isOwner(){
+                return (roomOwnerId) => {
+                    return this.memberInfo.id === roomOwnerId;
+                }
+            }
         },
         methods: {
+            async deleteRoom(roomId, member) {
+                await axios.delete('/chat/room', {data: {
+                        type: "DELETE",
+                        memberId: member.id,
+                        roomId: roomId
+                    }
+                }).then(response => {
+                    this.findAllRoom();
+                });
+            },
+            async getMemberInfo () {
+                await axios.get('/member').then(response => {
+                    this.memberInfo = response.data;
+                    localStorage.setItem('memberInfo', JSON.stringify(response.data));
+                });
+            },
             findAllRoom: function() {
                 axios.get('/chat/rooms').then(response => { this.chatRooms = response.data; });
             },
@@ -102,22 +127,58 @@
                     return;
                 } else {
                     var params = new URLSearchParams();
-                    params.append("name", this.roomName);
+                    params.append("roomName", this.roomName);
+                    params.append("memberId", this.memberInfo.id);
                     axios.post('/chat/room', params)
                         .then(
                             response => {
-                                alert(response.data.name+"방 개설에 성공하였습니다.")
+                                alert(response.data.roomName+"방 개설에 성공하였습니다.")
                                 this.roomName = '';
                                 this.findAllRoom();
                             }
                         )
-                        .catch( response => {
+                        .catch( () => {
                                 alert("채팅방 개설에 실패하였습니다.");
                             }
                         );
                 }
             },
-            enterRoom: function(roomId, roomName) {
+            checkPermission: async function(roomId,owner, roomName) {
+                await axios.post('/chat/room/credential', {
+                    memberId: this.memberInfo.id,
+                    roomId: roomId,
+                    password: ""
+                }).then(response => {
+                    const data = response.data;
+                    const isPermit = data.body;
+                    if(isPermit) {
+                        this.enterRoom(roomId, roomName);
+                    }else {
+                        this.readyEnterRoom(roomId,owner, roomName)
+                    }
+                });
+            },
+            readyEnterRoom: async function(roomId, owner, roomName) {
+                let key = "";
+                if (this.memberInfo.id !== owner.id){
+                    key = prompt("비밀번호를 입력해주세요");
+
+                    if (key.trim() === "") {
+                        return;
+                    }
+                }
+
+                await axios.post('/chat/key',{
+                    memberId: this.memberInfo.id,
+                    roomId: roomId,
+                    password: key
+                }).then(response => {
+                    this.enterRoom(roomId, roomName);
+                }).catch(() => {
+                    alert("비밀번호가 틀렸습니다.");
+                });
+            },
+            enterRoom(roomId, roomName) {
                 localStorage.setItem('chatRoom.roomName',roomName);
                 localStorage.setItem('chatRoom.roomId',roomId);
                 location.href="/chat/room/enter/"+roomId;
