@@ -1,55 +1,39 @@
-//package com.example.chat.service;
-//
-//import com.example.chat.domain.ChatRoom;
-//import com.fasterxml.jackson.databind.ObjectMapper;
-//import lombok.RequiredArgsConstructor;
-//import lombok.extern.slf4j.Slf4j;
-//import org.springframework.stereotype.Service;
-//import org.springframework.web.socket.TextMessage;
-//import org.springframework.web.socket.WebSocketSession;
-//
-//import javax.annotation.PostConstruct;
-//import java.io.IOException;
-//import java.util.*;
-//
-//@Slf4j
-//@RequiredArgsConstructor
-//@Service
-//public class ChatService {
-//
-//    private final ObjectMapper objectMapper;
-//    private Map<String, ChatRoom> chatRooms;
-//
-//    @PostConstruct
-//    private void init() {
-//        chatRooms = new LinkedHashMap<>();
-//    }
-//
-//    public List<ChatRoom> findAllRoom() {
-//        return new ArrayList<>(chatRooms.values());
-//    }
-//
-//    public ChatRoom findRoomById(String roomId) {
-//        return chatRooms.get(roomId);
-//    }
-//
-//    public ChatRoom createRoom(String name) {
-////        String roomId = UUID.randomUUID().toString();
-////        ChatRoom newRoom = ChatRoom.builder()
-////                .roomId(roomId)
-////                .name(name)
-////                .build();
-////        log.info("create new room: {}", newRoom);
-////        chatRooms.put(roomId, newRoom);
-//        return newRoom;
-//    }
-//
-//    public <T> void sendMessage(WebSocketSession session,
-//                                T message) {
-//        try {
-//            session.sendMessage(new TextMessage(objectMapper.writeValueAsBytes(message)));
-//        } catch (IOException e) {
-//            log.error(e.getMessage(), e);
-//        }
-//    }
-//}
+package com.example.chat.service;
+
+import com.example.chat.dto.ChatBanDto;
+import com.example.chat.dto.ChatDeleteDto;
+import com.example.chat.dto.ChatMessageDto;
+import com.example.chat.dto.ChatMessageType;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.stereotype.Service;
+
+@Slf4j
+@RequiredArgsConstructor
+@Service
+public class ChatService {
+
+    private final ChannelTopic channelTopic;
+    private final RedisTemplate redisTemplate;
+
+    public void sendChatMessage(ChatMessageDto chatMessage) {
+        if (ChatMessageType.JOIN.equals(chatMessage.getType())) {
+            chatMessage.setMessage(chatMessage.getSender() + "님이 방에 입장했습니다.");
+            chatMessage.setSender("[알림]");
+        } else if (ChatMessageType.QUIT.equals(chatMessage.getType())) {
+            chatMessage.setMessage(chatMessage.getSender() + "님이 방에서 퇴장하셨습니다.");
+            chatMessage.setSender("[알림]");
+        }
+        redisTemplate.convertAndSend(channelTopic.getTopic(), chatMessage);
+    }
+
+    public void sendBanMessage(ChatBanDto dto) {
+        redisTemplate.convertAndSend("banMember", dto);
+    }
+
+    public void sendDeletedChatRoom(ChatDeleteDto dto) {
+        redisTemplate.convertAndSend("deleteChatRoom", dto);
+    }
+}
