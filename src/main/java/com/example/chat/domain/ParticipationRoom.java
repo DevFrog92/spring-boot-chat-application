@@ -17,15 +17,21 @@ public class ParticipationRoom {
     @ManyToOne
     @JoinColumn(name = "member")
     private Member member;
-
     @ManyToOne
     @JoinColumn(name = "room")
     private Room room;
+    private Boolean submitKey = false;
+    private Boolean joined = false;
 
     @Builder
-    public ParticipationRoom(Member member, Room room) {
+    public ParticipationRoom(Member member, Room room, Boolean submitKey) {
         this.member = member;
         this.room = room;
+        this.submitKey = submitKey;
+    }
+
+    public void setFirstJoin(Boolean joined) {
+        this.joined = joined;
     }
 
     @Override
