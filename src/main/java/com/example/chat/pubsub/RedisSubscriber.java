@@ -1,5 +1,7 @@
 package com.example.chat.pubsub;
 
+import com.example.chat.dto.ChatBanDto;
+import com.example.chat.dto.ChatDeleteDto;
 import com.example.chat.dto.ChatMessageDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,34 @@ public class RedisSubscriber {
     public void sendMessage(String publishMessage) {
         try {
             ChatMessageDto chatMessage = om.readValue(publishMessage, ChatMessageDto.class);
+            messagingTemplate.convertAndSend(
+                    "/sub/chat/room/" + chatMessage.getRoomId(),
+                    chatMessage);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    public void sendBanMessage(String publishMessage) {
+        try {
+            ChatBanDto chatMessage = om.readValue(publishMessage, ChatBanDto.class);
+            messagingTemplate.convertAndSend(
+                    "/sub/member/"+chatMessage.getBanMemberId(),
+                    chatMessage);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    public void sendDeletedChatRoom(String publishMessage) {
+        try {
+            ChatDeleteDto chatMessage = om.readValue(
+                    publishMessage,
+                    ChatDeleteDto.class
+            );
+
             messagingTemplate.convertAndSend(
                     "/sub/chat/room/" + chatMessage.getRoomId(),
                     chatMessage);
