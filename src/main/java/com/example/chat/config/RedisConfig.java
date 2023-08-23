@@ -24,27 +24,44 @@ public class RedisConfig {
     @Bean
     public RedisMessageListenerContainer redisMessageListener(
             RedisConnectionFactory connectionFactory,
-            MessageListenerAdapter listenerAdapter,
-            ChannelTopic channelTopic
+            MessageListenerAdapter listenerAdapterChatRoom,
+            MessageListenerAdapter listenerAdapterBan,
+            MessageListenerAdapter listenerAdapterDeletedChatRoom
     ) {
 
         RedisMessageListenerContainer container
                 = new RedisMessageListenerContainer();
 
         container.setConnectionFactory(connectionFactory);
-        container.addMessageListener(listenerAdapter, channelTopic);
+        container.addMessageListener(listenerAdapterChatRoom, new ChannelTopic("chatroom"));
+        container.addMessageListener(listenerAdapterBan, new ChannelTopic("banMember"));
+        container.addMessageListener(listenerAdapterDeletedChatRoom, new ChannelTopic("deleteChatRoom"));
 
         return container;
     }
 
+
     // setup stomp message broker action when get the push from redis
     @Bean
-    public MessageListenerAdapter listenerAdapter(RedisSubscriber subscriber) {
+    public MessageListenerAdapter listenerAdapterChatRoom(RedisSubscriber subscriber) {
         return new MessageListenerAdapter(
                 subscriber,
                 "sendMessage");
     }
 
+    @Bean
+    public MessageListenerAdapter listenerAdapterBan(RedisSubscriber subscriber) {
+        return new MessageListenerAdapter(
+                subscriber,
+                "sendBanMessage");
+    }
+
+    @Bean
+    public MessageListenerAdapter listenerAdapterDeletedChatRoom(RedisSubscriber subscriber) {
+        return new MessageListenerAdapter(
+                subscriber,
+                "sendDeletedChatRoom");
+    }
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate(
