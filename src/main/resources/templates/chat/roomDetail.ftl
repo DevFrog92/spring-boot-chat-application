@@ -58,6 +58,15 @@
             background-color: rgba(241, 246, 251, 0.7);
         }
 
+        .text-center {
+            margin: 0 auto 1rem;
+            flex-grow: 0.8;
+        }
+
+        .text-center p {
+            text-align: center;
+        }
+
 
         .message-sender {
             font-size: 0.8rem;
@@ -97,14 +106,15 @@
         </div>
         <div class="col-md-6 text-right">
             <a class="btn btn-primary btn-sm" href="/logout">로그아웃</a>
-            <a class="btn btn-info btn-sm" href="/chat/room">채팅방 나가기</a>
+            <p @click="leaveRoom">채팅방 나가기</p>
         </div>
     </div>
     <ul class="list-group message-list">
-        <li v-for="message in messages" class="message-item-wrapper" :class="isOwner(message.sender)">
-            <div class="message-item" >
+        <li v-for="message in messages" class="message-item-wrapper" :class="isUser(message.sender)">
+<#--            <div v-if="!isNotice(message.sender)" class="icon-text">{{iconText(message.sender)}}</div>-->
+            <div class="message-item" :class="isNotice(message.sender)" >
                 <p class="message-sender">
-                    {{message.sender}}
+                    {{message.sender}} <span v-if="isOwner && !isNotice(message.sender)" @click="banMember(message.sender)">강퇴</span>
                 </p>
                 <p class="message-content">
                     {{message.message}}
@@ -144,23 +154,52 @@
             sender: '',
             message: '',
             messages: [],
-            userCount: 0
+            userCount: 0,
+            memberInfo: null,
+            roomInfo: {},
         },
-        created() {
+        async created() {
+            this.memberInfo = JSON.parse(localStorage.getItem('memberInfo'));
             this.roomId = localStorage.getItem('chatRoom.roomId');
             this.roomName = localStorage.getItem('chatRoom.roomName');
             const _this = this;
 
-            axios.get('/chat/user')
+            await axios.get('/chat/room/'+ this.roomId)
                 .then(response => {
-                   _this.token = response.data.token;
-                   ws.connect({"token": _this.token}, function(frame) {
+                    _this.roomInfo = response.data;
+                   ws.connect({"token": _this.memberInfo.token}, function(frame) {
                        console.log("frame", frame);
-
                        ws.subscribe("/sub/chat/room/"+_this.roomId, function(message) {
+                           console.log("subscribe",_this.roomId);
                            const subscribe = JSON.parse(message.body);
+
+                           if(subscribe.type === "DELETE") {
+                               alert("채팅방이 방장에의해 삭제되었습니다.");
+                               _this.leaveRoom();
+                               return;
+                           }
+
                            _this.subscribeMessage(subscribe);
                        });
+
+                       ws.subscribe("/sub/member/"+_this.memberInfo.id, function(message) {
+                           const body = JSON.parse(message.body);
+
+                           if(body.type === "BAN") {
+                               alert("방장에 의해 강퇴당하셨습니다.");
+                           }else if(body.type === "INVALID") {
+                               alert("채팅방에 입장할 수 없습니다.");
+                           }
+
+                          _this.leaveRoom();
+
+                       });
+
+                       ws.send("/pub/chat/enter", {"token": _this.memberInfo.token},
+                           JSON.stringify({type: 'JOIN', roomId: _this.roomId, loginInfo:_this.memberInfo}), function(message) {
+                                const body = JSON.parse(message.body);
+                                console.log("message", body);
+                           });
                    }, function (error) {
                        alert("Connection fail!!", error);
                        location.href = "/chat/room";
@@ -168,16 +207,39 @@
                 });
         },
         computed: {
-          isOwner() {
-              return (name) => {
-                  return name === this.sender ? "owner" : "";
+            iconText() {
+              return (text) => {
+                  return text.charAt(0).toUpperCase();
               }
-          }
+            },
+            isNotice() {
+                return (text) => {
+                    return text.indexOf('Notice') !== -1 ? "text-center" : "";
+                }
+            },
+            isUser() {
+                return (name) => {
+                    return name === this.memberInfo.name ? "owner" : "";
+                }
+              },
+            isOwner() {
+              return this.memberInfo.id === this.roomInfo.member.id;
+            }
         },
         methods: {
+            banMember: function(username) {
+                ws.send("/pub/chat/ban", {"token": this.memberInfo.token},
+                JSON.stringify({type: 'BAN', roomId: this.roomId, requestMemberId: this.memberInfo.id, banMemberName: username}))
+            },
+            leaveRoom: function() {
+                ws.send("/pub/chat/leave", {"token": this.memberInfo.token},
+                    JSON.stringify({type: 'QUIT', roomId: this.roomId, loginInfo:this.memberInfo}));
+
+                location.href="/chat/room"
+            },
             sendMessage: function(type) {
-                ws.send("/pub/chat/message", {"token": this.token},
-                    JSON.stringify({type: type, roomId:this.roomId, message:this.message}));
+                ws.send("/pub/chat/message", {"token": this.memberInfo.token},
+                    JSON.stringify({type: type, roomId: this.roomId, message:this.message}));
 
                 this.message = '';
             },
