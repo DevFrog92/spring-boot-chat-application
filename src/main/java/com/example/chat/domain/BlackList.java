@@ -1,14 +1,18 @@
 package com.example.chat.domain;
 
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class BlackList {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,6 +22,8 @@ public class BlackList {
     @ManyToOne
     @JoinColumn(name = "ban_member")
     private Member member;
+    @CreatedDate
+    private LocalDateTime banedAt;
 
     @Builder
     public BlackList(Room room, Member member) {
@@ -31,6 +37,7 @@ public class BlackList {
                 "id=" + id +
                 ", room=" + room +
                 ", member=" + member +
+                ", banedAt=" + banedAt +
                 '}';
     }
 }
