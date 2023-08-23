@@ -3,14 +3,16 @@ package com.example.chat.service;
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
 @Slf4j
 @Component
+@PropertySource("classpath:jwt.properties")
 public class JwtProvider {
-    @Value("${spring.jwt.secret.key}")
+    @Value("${jwt.secret.key}")
     private String secretKey;
 
     private long tokenValidMilisecond = 1000L * 60 * 60;
