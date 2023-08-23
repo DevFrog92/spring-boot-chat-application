@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -15,6 +17,8 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor
 @AllArgsConstructor
+@SQLDelete(sql = "update room set disabled_at = CURRENT_TIMESTAMP where id = ?")
+@Where(clause = "disabled_at IS NULL")
 public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +30,6 @@ public class Room {
     private Integer participationNum;
     @CreatedDate
     private LocalDateTime createdAt;
-    @CreatedDate
     private LocalDateTime disabledAt;
     @ManyToOne
     @JoinColumn(name = "member")
