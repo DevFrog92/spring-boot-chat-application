@@ -1,4 +1,4 @@
-package com.example.chat.handler;
+package com.example.chat.config.handler;
 
 import com.example.chat.service.JwtProvider;
 import lombok.RequiredArgsConstructor;
@@ -20,12 +20,10 @@ public class StompHandler implements ChannelInterceptor {
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-
-        // 메시지를 보낼 때, token을 검증한다.
-        if(StompCommand.CONNECT == accessor.getCommand()) {
-            jwtProvider.validateToken(accessor.getFirstNativeHeader("token"));
+        if (StompCommand.CONNECT == accessor.getCommand()) {
+            String jwtToken = accessor.getFirstNativeHeader("token");
+            jwtProvider.validateToken(jwtToken);
         }
-
-        return message;
+        return ChannelInterceptor.super.preSend(message, channel);
     }
 }

@@ -32,7 +32,8 @@ spring:
   output:
     ansi:
       enabled: always
-
+  config:
+    import: jwt.properties
 logging:
   level:
     org:
