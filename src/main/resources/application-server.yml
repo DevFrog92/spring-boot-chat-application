@@ -32,9 +32,8 @@ spring:
   output:
     ansi:
       enabled: always
-  jwt:
-    secret:
-      key: govlepe@$&
+  config:
+    import: jwt.properties
 logging:
   level:
     org:
