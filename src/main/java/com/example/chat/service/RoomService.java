@@ -42,6 +42,7 @@ public class RoomService {
         return newRoom;
     }
 
+    @Transactional
     public void checkEntryExamination(ChatEnterDto enterDto) {
         Long roomId = enterDto.getRoomId();
         Long requestMemberId = enterDto.getLoginInfo().getId();
@@ -81,6 +82,7 @@ public class RoomService {
     }
 
     // todo refactoring
+    @Transactional
     public void joinRoom(Room room, Member member) {
         if (participationRoomService
                 .isFirstJoinChatRoom(member, room)) {
@@ -88,6 +90,7 @@ public class RoomService {
         }
 
         participationRoomService.join(member, room);
+        increaseRoomCount(room);
         ChatMessageDto messageDto = ChatMessageDto.builder()
                 .roomId(room.getId())
                 .message(member.getName() + " joined this chatroom.")
@@ -97,10 +100,27 @@ public class RoomService {
     }
 
     @Transactional
+    public void increaseRoomCount(Room room) {
+        Room room1 = roomRepository.findById(room.getId()).orElseThrow();
+        room1.setParticipationNum(room1.getParticipationNum()+1);
+        log.info("update room cnt:{}", room1.getParticipationNum());
+
+        chatService.sendUpdateChatRoomInfo(new ChatRoomInfoDto(room.getId(), room.getParticipationNum()));
+    }
+
+
+    @Transactional
+    public void decreaseRoomCount(Room room) {
+        room.setParticipationNum(room.getParticipationNum()-1);
+        chatService.sendUpdateChatRoomInfo(new ChatRoomInfoDto(room.getId(), room.getParticipationNum()));
+    }
+
+    @Transactional
     public void leaveRoom(ChatEnterDto enterDto) {
         Room room = roomRepository.findById(enterDto.getRoomId()).orElseThrow();
         Member member = memberRepository.findById(enterDto.getLoginInfo().getId()).orElseThrow();
         participationRoomRepository.deleteByRoomAndMember(room, member);
+        decreaseRoomCount(room);
         ChatMessageDto messageDto = ChatMessageDto.builder()
                 .roomId(room.getId())
                 .message(member.getName() + " left this chatroom.")
