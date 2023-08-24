@@ -103,6 +103,9 @@
         },
         methods: {
             async deleteRoom(roomId, member) {
+                let result = confirm("채팅방을 삭제 하시겠습니까?");
+                if(!result) return;
+
                 await axios.delete('/chat/room', {data: {
                         type: "DELETE",
                         memberId: member.id,

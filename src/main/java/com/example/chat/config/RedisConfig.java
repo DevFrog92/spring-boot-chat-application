@@ -26,7 +26,8 @@ public class RedisConfig {
             RedisConnectionFactory connectionFactory,
             MessageListenerAdapter listenerAdapterChatRoom,
             MessageListenerAdapter listenerAdapterBan,
-            MessageListenerAdapter listenerAdapterDeletedChatRoom
+            MessageListenerAdapter listenerAdapterDeletedChatRoom,
+            MessageListenerAdapter listenerAdapterChatRoomInfo
     ) {
 
         RedisMessageListenerContainer container
@@ -36,6 +37,7 @@ public class RedisConfig {
         container.addMessageListener(listenerAdapterChatRoom, new ChannelTopic("chatroom"));
         container.addMessageListener(listenerAdapterBan, new ChannelTopic("banMember"));
         container.addMessageListener(listenerAdapterDeletedChatRoom, new ChannelTopic("deleteChatRoom"));
+        container.addMessageListener(listenerAdapterChatRoomInfo, new ChannelTopic("updateChatRoomInfo"));
 
         return container;
     }
@@ -61,6 +63,13 @@ public class RedisConfig {
         return new MessageListenerAdapter(
                 subscriber,
                 "sendDeletedChatRoom");
+    }
+
+    @Bean
+    public MessageListenerAdapter listenerAdapterChatRoomInfo(RedisSubscriber subscriber) {
+        return new MessageListenerAdapter(
+                subscriber,
+                "sendChatRoomInfo");
     }
 
     @Bean

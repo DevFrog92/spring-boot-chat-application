@@ -1,9 +1,7 @@
 package com.example.chat.service;
 
-import com.example.chat.dto.ChatBanDto;
-import com.example.chat.dto.ChatDeleteDto;
-import com.example.chat.dto.ChatMessageDto;
-import com.example.chat.dto.ChatMessageType;
+import com.example.chat.domain.ChatRoom;
+import com.example.chat.dto.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -35,5 +33,9 @@ public class ChatService {
 
     public void sendDeletedChatRoom(ChatDeleteDto dto) {
         redisTemplate.convertAndSend("deleteChatRoom", dto);
+    }
+
+    public void sendUpdateChatRoomInfo(ChatRoomInfoDto dto) {
+        redisTemplate.convertAndSend("updateChatRoomInfo", dto);
     }
 }
