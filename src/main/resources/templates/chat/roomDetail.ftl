@@ -167,6 +167,7 @@
             await axios.get('/chat/room/'+ this.roomId)
                 .then(response => {
                     _this.roomInfo = response.data;
+                    _this.userCount = response.data.participationNum;
                    ws.connect({"token": _this.memberInfo.token}, function(frame) {
                        console.log("frame", frame);
                        ws.subscribe("/sub/chat/room/"+_this.roomId, function(message) {
@@ -177,6 +178,10 @@
                                alert("채팅방이 방장에의해 삭제되었습니다.");
                                _this.leaveRoom();
                                return;
+                           } else if(subscribe.type === "INFO") {
+                               _this.userCount = subscribe.participationNum;
+                               return;
+
                            }
 
                            _this.subscribeMessage(subscribe);
@@ -192,7 +197,6 @@
                            }
 
                           _this.leaveRoom();
-
                        });
 
                        ws.send("/pub/chat/enter", {"token": _this.memberInfo.token},
@@ -214,7 +218,7 @@
             },
             isNotice() {
                 return (text) => {
-                    return text.indexOf('Notice') !== -1 ? "text-center" : "";
+                    return text && text.indexOf('Notice') !== -1 ? "text-center" : "";
                 }
             },
             isUser() {
@@ -244,7 +248,6 @@
                 this.message = '';
             },
             subscribeMessage: function(subscribe) {
-                this.userCount = subscribe.userCount;
                 this.messages.push(
                     {
                         "type":subscribe.type,
