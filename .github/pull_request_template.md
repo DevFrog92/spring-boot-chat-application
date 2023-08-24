@@ -1,5 +1,6 @@
 ### What is the PR type?
 - [ ] : feature
+- [ ] : refactor
 - [ ] : bug
 - [ ] : documentation
 - [ ] : chore
@@ -7,4 +8,11 @@
 
 ### What does this PR do?
 
-### Test
+### What will do next?
+
+### Test code
+
+- [ ] : api
+- [ ] : unit
+
+### Screenshot
