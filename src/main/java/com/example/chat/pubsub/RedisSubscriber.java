@@ -3,6 +3,7 @@ package com.example.chat.pubsub;
 import com.example.chat.dto.ChatBanDto;
 import com.example.chat.dto.ChatDeleteDto;
 import com.example.chat.dto.ChatMessageDto;
+import com.example.chat.dto.ChatRoomInfoDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,18 @@ public class RedisSubscriber {
                     "/sub/chat/room/" + chatMessage.getRoomId(),
                     chatMessage);
 
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    public void sendChatRoomInfo(String publishMessage) {
+        try {
+            ChatRoomInfoDto chatRoomInfoDto = om.readValue(publishMessage, ChatRoomInfoDto.class);
+            messagingTemplate.convertAndSend(
+                    "/sub/chat/room/" + chatRoomInfoDto.getRoomId(),
+                    chatRoomInfoDto
+            );
         } catch (Exception e) {
             log.error(e.getMessage());
         }
