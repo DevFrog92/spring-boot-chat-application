@@ -4,6 +4,7 @@
 - [ ] : bug
 - [ ] : documentation
 - [ ] : chore
+- [ ] : displace
 - [ ] : etc
 
 ### What does this PR do?
