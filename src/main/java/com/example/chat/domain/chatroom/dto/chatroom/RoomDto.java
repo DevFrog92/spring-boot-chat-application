@@ -5,6 +5,7 @@ import com.example.chat.domain.chatroom.domain.Room;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -20,6 +21,10 @@ public class RoomDto {
     private LocalDateTime createdAt;
     private LocalDateTime disabledAt;
     private Member member;
+
+    public void setMember(Member member) {
+        this.member = member;
+    }
 
     @Builder
     public RoomDto(Long id,

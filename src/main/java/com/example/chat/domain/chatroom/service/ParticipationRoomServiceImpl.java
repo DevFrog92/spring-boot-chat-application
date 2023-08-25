@@ -92,7 +92,7 @@ public class ParticipationRoomServiceImpl implements ParticipationRoomService {
 
     @Override
     @Transactional
-    public void deleteParticipationRelationByRoom(RoomDto room) {
+    public void deleteAllParticipationRelationByRoom(RoomDto room) {
         participationRoomRepository.deleteAllByRoom(room.getEntity());
     }
 

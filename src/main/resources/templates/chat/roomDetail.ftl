@@ -28,7 +28,7 @@
             height: 70vh;
             border: 1px solid lightgray;
             margin-bottom: 1rem;
-            padding: 0.5rem;
+            padding: 1rem;
             overflow-x: hidden;
             overflow-y: auto;
             border-radius: 4px;
@@ -47,20 +47,23 @@
 
         .message-item {
             width: fit-content;
+            max-width: 65%;
+            word-break: break-word;
             height: fit-content;
-            margin-bottom: 1rem;
+            margin-bottom: 2rem;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
             border: 1px solid lightgray;
             border-radius: 4px;
-            padding: 0.5rem;
+            padding: 1rem;
             background-color: rgba(241, 246, 251, 0.7);
         }
 
         .text-center {
             margin: 0 auto 1rem;
             flex-grow: 0.8;
+            background-color: lightblue;
         }
 
         .text-center p {
@@ -69,9 +72,10 @@
 
 
         .message-sender {
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             margin-bottom: 0;
             width: 100%;
+            text-decoration: underline;
         }
 
         .message-content {
@@ -96,27 +100,46 @@
             padding: 0.5rem;
             width: 64px;
         }
+
+        .ban-btn {
+            margin-left: 0.5rem;
+            color: lightslategray;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .room-name {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .room-name span {
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
 <div class="container" id="app" v-cloak>
     <div class="row">
-        <div class="col-md-6 chat-room-title mb-4">
-            <h2>{{room.name}}</h2> <span class="badge badge-info badge-pill">{{userCount}}</span></h4>
+        <div class="col-12 chat-room-title mb-4">
+            <h2 class="room-name">{{roomName}} <span class="badge bg-primary text-white">{{userCount}}</span></h2>
         </div>
-        <div class="col-md-6 text-right">
-            <a class="btn btn-primary btn-sm" href="/logout">로그아웃</a>
-            <p @click="leaveRoom">채팅방 나가기</p>
+        <div class="col-12 mb-4 text-right btn-container">
+            <button class="btn-sm btn btn-secondary mr-3" @click="moveToHome">메인 화면으로</button>
+            <button class="btn-sm btn btn-warning" @click="leaveRoom">채팅방 나가기</button>
         </div>
     </div>
     <ul class="list-group message-list">
         <li v-for="message in messages" class="message-item-wrapper" :class="isUser(message.sender)">
-<#--            <div v-if="!isNotice(message.sender)" class="icon-text">{{iconText(message.sender)}}</div>-->
             <div class="message-item" :class="isNotice(message.sender)" >
                 <p class="message-sender">
-                    {{message.sender}} <span v-if="isOwner && !isNotice(message.sender)" @click="banMember(message.sender)">강퇴</span>
+                    {{message.sender}} <span v-if="isOwner && !isNotice(message.sender) && !isUser(message.sender)" class="ban-btn" @click="banMember(message.sender)">[강퇴]</span>
                 </p>
-                <p class="message-content">
+                <p class="message-content" :class="isNotice(message.sender)">
                     {{message.message}}
                 </p>
             </div>
@@ -132,19 +155,17 @@
     </div>
     <div></div>
 </div>
-<!-- JavaScript -->
+
 <script src="/webjars/vue/2.5.16/dist/vue.min.js"></script>
 <script src="/webjars/axios/0.17.1/dist/axios.min.js"></script>
 <script src="/webjars/bootstrap/4.3.1/dist/js/bootstrap.min.js"></script>
 <script src="/webjars/sockjs-client/1.1.2/sockjs.min.js"></script>
 <script src="/webjars/stomp-websocket/2.3.3-1/stomp.min.js"></script>
 <script>
-    // websocket & stomp initialize
     const sock = new SockJS("/ws-stomp");
     const ws = Stomp.over(sock);
-    const reconnect = 0;
+    ws.debug = null;
 
-    // vue.js
     const vm = new Vue({
         el: '#app',
         data: {
@@ -164,19 +185,17 @@
             this.roomName = localStorage.getItem('chatRoom.roomName');
             const _this = this;
 
-            await axios.get('/chat/room/'+ this.roomId)
+            await axios.get('/api/chat/room/'+ this.roomId)
                 .then(response => {
-                    _this.roomInfo = response.data;
-                    _this.userCount = response.data.participationNum;
-                   ws.connect({"token": _this.memberInfo.token}, function(frame) {
-                       console.log("frame", frame);
+                    _this.roomInfo = response.data.body;
+                    _this.userCount = response.data.body.participationNum;
+                   ws.connect({"token": _this.memberInfo.token}, function() {
                        ws.subscribe("/sub/chat/room/"+_this.roomId, function(message) {
-                           console.log("subscribe",_this.roomId);
                            const subscribe = JSON.parse(message.body);
 
                            if(subscribe.type === "DELETE") {
-                               alert("채팅방이 방장에의해 삭제되었습니다.");
-                               _this.leaveRoom();
+                               alert("방장이 채팅방을 삭제했습니다.");
+                               _this.moveToHome();
                                return;
                            } else if(subscribe.type === "INFO") {
                                _this.userCount = subscribe.participationNum;
@@ -200,12 +219,12 @@
                        });
 
                        ws.send("/pub/chat/enter", {"token": _this.memberInfo.token},
-                           JSON.stringify({type: 'JOIN', roomId: _this.roomId, loginInfo:_this.memberInfo}), function(message) {
+                           JSON.stringify({type: 'JOIN', roomId: _this.roomId, participationId:_this.memberInfo.id}), function(message) {
                                 const body = JSON.parse(message.body);
                                 console.log("message", body);
                            });
                    }, function (error) {
-                       alert("Connection fail!!", error);
+                       alert("Connection fail!", error);
                        location.href = "/chat/room";
                    });
                 });
@@ -218,7 +237,7 @@
             },
             isNotice() {
                 return (text) => {
-                    return text && text.indexOf('Notice') !== -1 ? "text-center" : "";
+                    return text && text.indexOf('알림') !== -1 ? "text-center" : "";
                 }
             },
             isUser() {
@@ -227,23 +246,25 @@
                 }
               },
             isOwner() {
-              return this.memberInfo.id === this.roomInfo.member.id;
-            }
+              return this.memberInfo.name === this.roomInfo.ownerName;
+            },
         },
         methods: {
+            moveToHome() {
+                location.href="/chat/room"
+            },
             banMember: function(username) {
                 ws.send("/pub/chat/ban", {"token": this.memberInfo.token},
                 JSON.stringify({type: 'BAN', roomId: this.roomId, requestMemberId: this.memberInfo.id, banMemberName: username}))
             },
             leaveRoom: function() {
                 ws.send("/pub/chat/leave", {"token": this.memberInfo.token},
-                    JSON.stringify({type: 'QUIT', roomId: this.roomId, loginInfo:this.memberInfo}));
-
-                location.href="/chat/room"
+                    JSON.stringify({type: 'QUIT', roomId: this.roomId, participationId:this.memberInfo.id}));
+                this.moveToHome();
             },
             sendMessage: function(type) {
                 ws.send("/pub/chat/message", {"token": this.memberInfo.token},
-                    JSON.stringify({type: type, roomId: this.roomId, message:this.message}));
+                    JSON.stringify({type: type, roomId: this.roomId, message:this.message, sender: this.memberInfo.name}));
 
                 this.message = '';
             },
@@ -255,11 +276,6 @@
                         "message":subscribe.message
                     }
                 );
-
-                const list = document.querySelector(".message-list");
-                if(list != null) {
-                    list.scrollTo(list.scrollHeight);
-                }
             }
         }
     });

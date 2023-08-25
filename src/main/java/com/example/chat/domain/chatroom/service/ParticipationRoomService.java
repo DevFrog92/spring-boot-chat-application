@@ -14,7 +14,7 @@ public interface ParticipationRoomService {
 
     boolean alreadyJoinChatRoom(MemberDto member, RoomDto room);
 
-    void deleteParticipationRelationByRoom(RoomDto room);
+    void deleteAllParticipationRelationByRoom(RoomDto room);
 
     void deleteParticipationRelationByRoomAndMember(RoomDto room, MemberDto member);
 }

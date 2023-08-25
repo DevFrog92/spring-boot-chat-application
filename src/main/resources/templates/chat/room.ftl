@@ -21,17 +21,6 @@
             color: #292929;
         }
 
-        .input-group-prepend {
-            border: 1px solid lightgray;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 0.5rem;
-            border-radius: 4px;
-            border-top-right-radius: 0;
-            border-bottom-right-radius: 0;
-        }
-
         .input-form {
             outline: none;
             border: 1px solid lightgray;
@@ -39,55 +28,86 @@
             flex-grow: 1;
         }
 
-        .btn-border {
+        .form-border {
+            border: 1px solid white;
             border-radius: 4px;
-            border-top-left-radius: 0;
-            border-bottom-left-radius: 0;
-            padding: 0.5rem;
         }
+
+        .room-name {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .room-name .room-name-text {
+            font-size: 1.2rem;
+        }
+
+        .room-name .lock-icon{
+            font-size: 1rem;
+            margin-right: 8px;
+        }
+
+        .room-name span {
+            font-size: .7rem;
+        }
+
     </style>
 </head>
 <body>
 <div class="container" id="app" v-cloak>
-    <div class="row mb-4">
-        <div class="col-md-6 ">
+    <div class="row">
+        <div class="col-6">
             <h3>채팅방 목록</h3>
         </div>
-        <div class="col-md-6 text-right">
-            <a class="btn btn-primary btn-sm" href="/logout">로그아웃</a>
+        <div class="col-6 text-right">
+            <a class="btn btn-secondary btn-sm" href="/logout">로그아웃</a>
         </div>
     </div>
-    <div class="input-group mb-4">
-        <div class="input-group-prepend">
-            <label class="input-group-label mb-0">채팅방 제목</label>
+    <form @submit.prevent class="form-border mt-4">
+        <div class="mb-3">
+            <label for="roomName" class="form-label">채팅방 이름</label>
+            <input type="text" id="roomName" class="form-control" v-model="roomName" @keyup.enter="createRoom"/>
         </div>
-        <input type="text" class="input-form" v-model="roomName" @keyup.enter="createRoom"/>
-        <div class="input-group-append">
-            <button class="btn btn-primary btn-border" type="button" @click="createRoom">채팅방 만들기</button>
+        <div class="mb-3">
+            <label for="password" class="form-label">비밀번호</label>
+            <input type="password" class="form-control" id="password" v-model="roomPassword">
         </div>
-    </div>
-    <ul class="list-group">
-        <li class="list-group-item list-group-item-action" v-for="room in chatRooms" v-bind:key="room.id">
-            {{room.name}}
-            <h6>{{room.name}} <span class="badge badge-info badge-pill">{{room.participationNum}}</span></h6>
-            <#--            todo private room 이 아니면 enterRoom 을 호출한다. -->
-            <div @click="checkPermission(room.id, room.name)">입장</div>
-            <div v-if="isOwner(room.ownerName)" @click="deleteRoom(room.id)">삭제</div>
+        <div class="mb-2 form-check">
+            <input type="checkbox" class="form-check-input" id="isPrivateRoom" v-model="isPrivate">
+            <label class="form-check-label" for="isPrivateRoom">프라이빗 채팅방</label>
+        </div>
+        <div class="text-right">
+            <button type="submit" class="btn-sm btn btn-primary" @click="createRoom">채팅방 생성</button>
+        </div>
+    </form>
+    <hr/>
+    <ul class="list-group mt-4">
+        <li class="list-group-item mb-4 list-group-item-action" v-for="room in chatRooms" v-bind:key="room.id">
+            <h4 class="room-name"><span class="room-name-text"><span v-if="room.type === 'PRIVATE'" class="lock-icon">&#128274;</span>{{room.name}}</span> <span class="badge bg-primary text-white">{{room.participationNum}} / {{room.maxChatRoomSize}}</span></h4>
+            <div class="row mt-4">
+                <div class="col-6">
+                    <button class="btn-sm btn btn-primary" type="button" @click="checkPermission(room.id, room.name)">입장</button>
+                </div>
+                <div class="col-6 text-right " v-if="isOwner(room.ownerName)">
+                    <button class="btn-sm btn btn-danger" type="button" @click="deleteRoom(room.id)">삭제</button>
+                </div>
+            </div>
+
         </li>
 
     </ul>
 </div>
-<!-- JavaScript -->
 <script src="/webjars/vue/2.5.16/dist/vue.min.js"></script>
 <script src="/webjars/axios/0.17.1/dist/axios.min.js"></script>
 <script src="/webjars/bootstrap/4.3.1/dist/js/bootstrap.min.js"></script>
-<script src="/webjars/sockjs-client/1.1.2/sockjs.min.js"></script>
-<script src="/webjars/stomp-websocket/2.3.3-1/stomp.min.js"></script>
 <script>
     const vm = new Vue({
         el: '#app',
         data: {
             roomName : '',
+            isPrivate: false,
+            roomPassword: "",
             chatRooms: [],
             memberInfo: null
         },
@@ -123,8 +143,8 @@
                     localStorage.setItem('memberInfo', JSON.stringify(response.data.body));
                 });
             },
-            findAllRoom: function() {
-                axios.get('/api/chat/rooms').then(response => {
+            findAllRoom: async function() {
+                await axios.get('/api/chat/rooms').then(response => {
                     this.chatRooms = response.data.body;
                 });
             },
@@ -134,15 +154,26 @@
                     return;
                 }
 
-                const params = new URLSearchParams();
-                params.append("roomName", this.roomName);
-                params.append("memberId", this.memberInfo.id);
+                if(this.isPrivate && this.roomPassword.trim() === "") {
+                    alert("Please enter the private room key.");
+                    return;
+                }
 
-                axios.post('/api/chat/room', params)
+                const data = {
+                    requestMemberId: this.memberInfo.id,
+                    roomName: this.roomName,
+                    type: this.isPrivate ? "PRIVATE": "PUBLIC",
+                    secretKey: this.roomPassword
+                }
+
+
+                axios.post('/api/chat/room', data)
                     .then(
                         response => {
                             alert(response.data.body.name+"방 개설에 성공하였습니다.")
-                            this.roomName = '';
+                            this.roomName = "";
+                            this.isPrivate = false;
+                            this.roomPassword = "";
                             this.findAllRoom();
                         }
                     )
