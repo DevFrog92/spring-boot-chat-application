@@ -1,10 +1,6 @@
 # Spring Boot chat application
 
-Spring Boot와 WebSocket을 이용한 기본적인 실시간 채팅 기능을 구현한다.
-
-1차: Thymeleaf를 View로 실시간 통신이 가능한 채팅방을 구현
-2차: 채팅방에 사용자 식별 기능을 추가
-3차: Open API 형식으로 구현 뒤, Thymeleaf를 SPA(ex Vue.js)로 재구현
+Spring Boot와 WebSocket을 이용한 기본적인 실시간 채팅 기능을 구현
 
 ### 메인 기술 스택
 
@@ -13,44 +9,55 @@ Spring Boot와 WebSocket을 이용한 기본적인 실시간 채팅 기능을 �
 - Spring WebSocket
 - JPA
 - MySQL
-- Redis(TBC)
-- SpringSecurity(TBD)
+- Redis Pub/Sub
+- SpringSecurity
+- Vue
+- Freemarker
 
 ### 주요 기능
 
 - 사용자 기능
-    - 회원가입한 유저만 채팅 관련 기능을 사용할 수 있다.
+    - 회원가입한 사용자만 채팅 관련 기능을 사용할 수 있다.
     - 회원가입한 사용자는 닉네임을 정할 수 있다.
         - 닉네임은 채팅방에서 사용된다.
+    - 사용자는 로그라웃할 수 있다. 
 - 실시간 채팅 기능
-    - 참여자 알림기능
     - 채팅 작성 및 전송 기능
 - 채팅방 기능
+    - 전체 채팅방 조회 기능
+        - 메인 페이지에서 생성되어 있는 모든 채팅방을 볼 수 있다.
+        - 만약 사용자가 특정 채팅방에 블랙리스트로 등록되어 있다면, 해당 채팅방은 제외되고 보여진다.
     - 채팅방 참여 기능
         - 회원가입 한 유저는 채팅방에 참여할 수 있다.
-            - 프라이빗 채팅방의 경우 식별 코드가 반드시 입력되어야 한다.(TBD)
-    - 채팅방 조회 기능
-        - 채팅방은 이름 또는 관리자의 이름으로 조회할 수 있다.(TBD)
-        - 각 채팅방은 참여인원을 보여준다.
+            - 프라이빗 채팅방의 경우 식별 코드가 반드시 입력되어야 한다.
+        - 채팅방에 참여했다는 알림 메시지가 전송된다.
+    - 채팅방 나가기 기능
+        - 참여자는 채팅방을 나갈 수 있다.
+        - 참여자가 나가면 채팅방에는 유저가 나갔다는 알림 메시지가 전송된다.. 
     - 채팅방 생성 기능
-        - 채팅방 생성시 비밀번호를 통해서 프라이빗 채팅방을 개설할 수 있다.(TBD)
-        - 채팅방에 참여할 수 있는 식별 코드를 생성한다.(TBD)
+        - 채팅방 생성시 비밀번호를 통해서 프라이빗 채팅방을 개설할 수 있다.
+        - 채팅방에 참여할 수 있는 식별 코드를 생성한다.
         - 회원가입한 유저만 채팅 방을 생성할 수 있다.
-        - 회원 등급에 따라서 채팅방의 인원을 제한할 수 있다.(TBD)
     - 채팅방 삭제 기능
-        - 소유주는 방에 인원이 남아 있는 경우에는 삭제할 수 있다.
+        - 채팅방의 관리인은 채팅방을 삭제할 수 있다.
+            - 만약 채팅방에 참여인원이 남아있으면 모든 인원을 내보내고, 채팅방은 삭제된다.
     - 방에서 강퇴 기능
+        - 채팅방 관리자는 참여자를 강퇴시킬 수 있다.
+        - 강퇴 당한 사용자는 블랙리스트에 추가된다.
 
-- 소유주는 권한을 넘길 수 있을까?
-    - 인원이 있는데, 소유주가 나가는 경우에는 어떻게 할까?
-    - 남아 있는 사람들이 있어도 삭제
+### ERD
 
-- 관리자에게 문의 기능(TBD)
-    - 관리자에게 문의할 수 있다.(TBD)
+![Screenshot 2023-08-26 at 12 00 09 AM](https://github.com/DevFrog92/spring-boot-chat-application/assets/82052272/7ff83cda-5614-4d76-9a09-e23ef44e9133)
 
-### ERD(WIP)
+### ScreenShot
 
-![Screenshot 2023-08-10 at 4 26 54 PM](https://github.com/DevFrog92/spring-boot-chat-application/assets/82052272/321d5b73-e569-4cec-9442-c64e8bdcdc9a)
+- room
+  
+  ![Screenshot 2023-08-25 at 11 31 01 PM](https://github.com/DevFrog92/spring-boot-chat-application/assets/82052272/26ab5051-15a9-4808-95d8-8b0b0d63aadf)
+
+- roomDetail
+  
+  ![Screenshot 2023-08-25 at 11 45 32 PM](https://github.com/DevFrog92/spring-boot-chat-application/assets/82052272/62e05b54-9c31-4873-b9d2-816a80235fd9)
 
 
 ### Reference
