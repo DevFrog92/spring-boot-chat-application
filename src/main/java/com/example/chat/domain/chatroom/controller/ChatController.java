@@ -25,7 +25,7 @@ public class ChatController {
 
     @MessageMapping("/chat/enter")
     public void enter(@RequestBody ChatNoticeDto enterDto) {
-        chatRoomService.checkEntryExamination(enterDto);
+        chatRoomService.joinRoom(enterDto);
     }
 
     @MessageMapping("/chat/leave")

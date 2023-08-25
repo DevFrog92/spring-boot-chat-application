@@ -1,5 +1,6 @@
 package com.example.chat.domain.chatroom.controller;
 
+import com.example.chat.domain.chatroom.dto.chatroom.CreateRoomDto;
 import com.example.chat.domain.chatroom.dto.message.ChatNoticeDto;
 import com.example.chat.global.web.dto.ResponseDto;
 import com.example.chat.domain.chatroom.dto.chatroom.RoomInfoDto;
@@ -13,6 +14,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static com.example.chat.domain.chatroom.dto.chatroom.ChatRoomType.PUBLIC;
 
 @Slf4j
 @RestController
@@ -35,7 +38,6 @@ public class ChatRoomApiController {
     }
 
     @GetMapping("/room/{roomId}")
-    @ResponseBody
     public ResponseEntity<?> roomInfo(@PathVariable Long roomId) {
         RoomInfoDto roomInfo = chatRoomService.getRoomInfo(roomId);
         return new ResponseEntity<>(
@@ -48,14 +50,17 @@ public class ChatRoomApiController {
     }
 
     @PostMapping("/room")
-    @ResponseBody
-    public ResponseEntity<?> createRoom(@RequestParam Long memberId,
-                                        @RequestParam String roomName) {
-        RoomInfoDto room = chatRoomService.createRoom(memberId, roomName);
+    public ResponseEntity<?> createRoom(@RequestBody CreateRoomDto dto) {
+        RoomInfoDto room;
+        if (dto.getType().equals(PUBLIC)) {
+            room = chatRoomService.createPublicRoom(dto);
+        }else {
+            room = chatRoomService.createPrivateRoom(dto);
+        }
 
         return new ResponseEntity<>(
                 new ResponseDto<>(
-                        "모든 채팅방 조회를 성공했습니다.",
+                        "채팅방 개설을 성공했습니다.",
                         room
                 ),
                 HttpStatus.OK
@@ -83,7 +88,7 @@ public class ChatRoomApiController {
 
         return new ResponseEntity<>(
                 new ResponseDto<>(
-                        "신원 조회 완료",
+                        "신원 조회를 완료했습니다.",
                         isPermitted
                 ),
                 HttpStatus.OK
