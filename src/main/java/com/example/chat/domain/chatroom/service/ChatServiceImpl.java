@@ -41,7 +41,7 @@ public class ChatServiceImpl implements ChatService {
                 ChatMessageDto.builder()
                         .type(NOTICE)
                         .roomId(roomId)
-                        .sender("📣 Notice")
+                        .sender("📣 알림")
                         .message(name + " 님이 방을 나갔습니다.")
                         .build()
         );
