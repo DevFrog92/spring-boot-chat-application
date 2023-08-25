@@ -55,10 +55,6 @@ Spring Boot와 WebSocket을 이용한 기본적인 실시간 채팅 기능을 �
   
   ![Screenshot 2023-08-25 at 11 31 01 PM](https://github.com/DevFrog92/spring-boot-chat-application/assets/82052272/26ab5051-15a9-4808-95d8-8b0b0d63aadf)
 
-- roomDetail
-  
-  ![Screenshot 2023-08-25 at 11 45 32 PM](https://github.com/DevFrog92/spring-boot-chat-application/assets/82052272/62e05b54-9c31-4873-b9d2-816a80235fd9)
-
 
 ### Reference
 - https://www.daddyprogrammer.org/post/4731/spring-websocket-chatting-server-redis-pub-sub/
