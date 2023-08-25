@@ -1,18 +1,16 @@
 package com.example.chat.domain.chatroom.service;
 
-import com.example.chat.domain.chatroom.domain.BlackList;
+import com.example.chat.domain.chatroom.domain.Room;
+import com.example.chat.domain.chatroom.domain.RoomRepository;
+import com.example.chat.domain.chatroom.dto.chatroom.CreateRoomDto;
 import com.example.chat.domain.chatroom.dto.chatroom.RoomDto;
 import com.example.chat.domain.chatroom.dto.chatroom.RoomInfoDto;
 import com.example.chat.domain.chatroom.dto.chatroom.SubmitSecretKeyDto;
 import com.example.chat.domain.chatroom.dto.message.ChatNoticeDto;
-import com.example.chat.domain.member.domain.Member;
-import com.example.chat.domain.chatroom.domain.Room;
 import com.example.chat.domain.member.dto.BanMemberDto;
+import com.example.chat.domain.member.dto.MemberDto;
 import com.example.chat.domain.member.service.MemberService;
 import com.example.chat.global.web.Exception.CustomNoSuchElementException;
-import com.example.chat.domain.member.dto.MemberDto;
-import com.example.chat.domain.chatroom.domain.BlackListRepository;
-import com.example.chat.domain.chatroom.domain.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,68 +29,70 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     private final ChatService chatService;
     private final MemberService memberService;
     private final RoomRepository roomRepository;
-    private final BlackListRepository blackListRepository;
+    private final BlackListService blackListService;
     private final ParticipationRoomService participationRoomService;
 
     @Override
     @Transactional
-    public RoomInfoDto createRoom(Long memberId, String roomName) {
-        MemberDto memberDto = memberService.findMemberById(memberId);
-        Member member = memberDto.getEntity();
-        Room newRoom = roomRepository.save(Room.builder()
-                .isPrivate(true)
-                .name(roomName)
-                .maxPoolSize(100)
-                .member(member)
+    public RoomInfoDto createPublicRoom(CreateRoomDto dto) {
+        RoomDto roomDto = RoomDto.builder()
+                .isPrivate(false)
+                .name(dto.getRoomName())
+                .maxChatRoomSize(100)
                 .participationNum(1)
-                .secretCode("qwer1234")
-                .build());
+                .build();
+
+        return saveRoom(roomDto, dto.getRequestMemberId());
+    }
+
+    @Override
+    @Transactional
+    public RoomInfoDto createPrivateRoom(CreateRoomDto dto) {
+        RoomDto roomDto = RoomDto.builder()
+                .isPrivate(true)
+                .name(dto.getRoomName())
+                .maxChatRoomSize(100)
+                .participationNum(1)
+                .secretCode(dto.getSecretKey())
+                .build();
+
+        return saveRoom(roomDto, dto.getRequestMemberId());
+    }
+
+    @Transactional
+    public RoomInfoDto saveRoom(RoomDto roomDto, Long memberId) {
+        MemberDto memberDto = memberService.findMemberById(memberId);
+        roomDto.setMember(memberDto.getEntity());
+
+        Room savedRoom = roomRepository.save(roomDto.getEntity());
 
         participationRoomService.createParticipationRelation(
                 memberDto,
-                RoomDto.fromEntity(newRoom));
+                RoomDto.fromEntity(savedRoom));
 
-        return RoomInfoDto.fromEntity(newRoom);
+        return RoomInfoDto.fromEntity(savedRoom);
     }
 
     @Override
     @Transactional
-    public void checkEntryExamination(ChatNoticeDto enterDto) {
-        Long roomId = enterDto.getRoomId();
-        Long requestMemberId = enterDto.getParticipationId();
-        MemberDto requestMember = memberService
-                .findMemberById(requestMemberId);
-        Room findRoom = roomRepository
-                .findById(roomId)
+    public void joinRoom(ChatNoticeDto dto) {
+        MemberDto member = memberService.findMemberById(dto.getParticipationId());
+        RoomDto room = roomRepository.findById(dto.getRoomId()).stream()
+                .map(RoomDto::fromEntity)
+                .findFirst()
                 .orElseThrow(() ->
                         new CustomNoSuchElementException("Room does not exist"));
 
-        if (isMemberInBlackList(requestMember, RoomDto.fromEntity(findRoom))) {
-            chatService.sendMessageToMemberTopic(requestMemberId, INVALID);
-            return;
-        }
-
-        joinRoom(RoomDto.fromEntity(findRoom), requestMember);
-    }
-
-    @Override
-    public boolean isMemberInBlackList(MemberDto member, RoomDto room) {
-        return blackListRepository
-                .findByRoomAndMember(
-                        room.getEntity(),
-                        member.getEntity())
-                .isPresent();
-    }
-
-
-    @Override
-    @Transactional
-    public void joinRoom(RoomDto room, MemberDto member) {
         if (participationRoomService.alreadyJoinChatRoom(member, room)) {
             return;
         }
 
-        participationRoomService.join(member, room);
+        if (room.getIsPrivate()) {
+            participationRoomService.join(member, room);
+        } else {
+            participationRoomService.createParticipationRelation(member, room);
+        }
+
         chatService.sendEnterChatRoomMessage(room.getId(), member.getName());
         increaseRoomCount(room);
     }
@@ -166,20 +166,17 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                 .orElseThrow(() ->
                         new CustomNoSuchElementException("Room does not exist"));
 
-        if (!room.getMember().getId().equals(dto.getRequestMemberId())) {
+        if (isNotRoomOwner(dto.getRequestMemberId(), RoomDto.fromEntity(room))) {
             return;
         }
 
         MemberDto banMember = memberService.findMemberByName(dto.getBanMemberName());
-
-        // todo separate to blacklist service
-        BlackList blackList = BlackList.builder()
-                .room(room)
-                .member(banMember.getEntity())
-                .build();
-
-        blackListRepository.save(blackList);
+        blackListService.addBlackList(RoomDto.fromEntity(room), banMember);
         chatService.sendMessageToMemberTopic(banMember.getId(), BAN);
+    }
+
+    private static boolean isNotRoomOwner(Long requestMemberId, RoomDto room) {
+        return !room.getMember().getId().equals(requestMemberId);
     }
 
     @Override
@@ -212,7 +209,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         roomRepository.deleteById(room.getId());
         chatService.sendChatRoomDeleted(room.getId());
         participationRoomService
-                .deleteParticipationRelationByRoom(RoomDto.fromEntity(room));
+                .deleteAllParticipationRelationByRoom(RoomDto.fromEntity(room));
     }
 
     @Override
@@ -223,10 +220,19 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                 .orElseThrow(() ->
                         new CustomNoSuchElementException("Room does not exist"));
 
+        // check is room PUBLIC
         if (!room.getIsPrivate()) {
             return true;
         }
 
+        // check request member is in black list
+        if (blackListService.isMemberInBlackList(
+                member, RoomDto.fromEntity(room))) {
+            chatService.sendMessageToMemberTopic(member.getId(), INVALID);
+            return false;
+        }
+
+        // check request member is already permitted room
         return participationRoomService.isPermitMember(
                 member,
                 RoomDto.fromEntity(room)

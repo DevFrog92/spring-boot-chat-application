@@ -1,22 +1,19 @@
 package com.example.chat.domain.chatroom.service;
 
+import com.example.chat.domain.chatroom.dto.chatroom.CreateRoomDto;
 import com.example.chat.domain.chatroom.dto.chatroom.RoomDto;
 import com.example.chat.domain.chatroom.dto.chatroom.RoomInfoDto;
 import com.example.chat.domain.chatroom.dto.chatroom.SubmitSecretKeyDto;
 import com.example.chat.domain.chatroom.dto.message.ChatNoticeDto;
 import com.example.chat.domain.member.dto.BanMemberDto;
-import com.example.chat.domain.member.dto.MemberDto;
 
 import java.util.List;
 
 public interface ChatRoomService {
-    RoomInfoDto createRoom(Long memberId, String roomName);
+    RoomInfoDto createPublicRoom(CreateRoomDto dto);
+    RoomInfoDto createPrivateRoom(CreateRoomDto dto);
 
-    void checkEntryExamination(ChatNoticeDto enterDto);
-
-    boolean isMemberInBlackList(MemberDto member, RoomDto room);
-
-    void joinRoom(RoomDto room, MemberDto member);
+    void joinRoom(ChatNoticeDto dto);
 
     void leaveRoom(ChatNoticeDto enterDto);
 
