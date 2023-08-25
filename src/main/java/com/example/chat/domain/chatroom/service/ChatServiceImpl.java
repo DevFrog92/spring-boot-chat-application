@@ -29,8 +29,8 @@ public class ChatServiceImpl implements ChatService {
                 ChatMessageDto.builder()
                         .type(NOTICE)
                         .roomId(roomId)
-                        .sender("[📣 Notice 📣]")
-                        .message(name + " joined this chatroom.")
+                        .sender("📣 알림")
+                        .message(name + " 님이 참여했습니다.")
                         .build()
         );
     }
@@ -41,8 +41,8 @@ public class ChatServiceImpl implements ChatService {
                 ChatMessageDto.builder()
                         .type(NOTICE)
                         .roomId(roomId)
-                        .sender("[📣 Notice 📣]")
-                        .message(name + " left this chatroom.")
+                        .sender("📣 Notice")
+                        .message(name + " 님이 방을 나갔습니다.")
                         .build()
         );
     }
