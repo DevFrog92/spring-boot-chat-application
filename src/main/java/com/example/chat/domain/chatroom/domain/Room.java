@@ -38,13 +38,13 @@ public class Room {
     public Room(String name,
                 Boolean isPrivate,
                 String secretCode,
-                Integer maxPoolSize,
+                Integer maxChatRoomSize,
                 Integer participationNum,
                 Member member) {
         this.name = name;
         this.isPrivate = isPrivate;
         this.secretCode = secretCode;
-        this.maxChatRoomSize = maxPoolSize;
+        this.maxChatRoomSize = maxChatRoomSize;
         this.participationNum = participationNum;
         this.member = member;
     }
@@ -56,7 +56,7 @@ public class Room {
                 ", roomName='" + name + '\'' +
                 ", isPrivate=" + isPrivate +
                 ", secretCode='" + secretCode + '\'' +
-                ", maxPoolSize=" + maxChatRoomSize +
+                ", maxChatRoomSize=" + maxChatRoomSize +
                 ", participationNum=" + participationNum +
                 ", createdAt=" + createdAt +
                 ", disabledAt=" + disabledAt +
