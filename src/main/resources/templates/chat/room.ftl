@@ -67,11 +67,12 @@
         </div>
     </div>
     <ul class="list-group">
-        <li class="list-group-item list-group-item-action" v-for="item in chatRooms" v-bind:key="item.id">
-            {{item.roomName}}
-            <h6>{{item.roomName}} <span class="badge badge-info badge-pill">{{item.participationNum}}</span></h6>
-            <div @click="checkPermission(item.id, item.member, item.roomName)">입장</div>
-            <div v-if="isOwner(item.member.id)" @click="deleteRoom(item.id, item.member)">삭제</div>
+        <li class="list-group-item list-group-item-action" v-for="room in chatRooms" v-bind:key="room.id">
+            {{room.name}}
+            <h6>{{room.name}} <span class="badge badge-info badge-pill">{{room.participationNum}}</span></h6>
+            <#--            todo private room 이 아니면 enterRoom 을 호출한다. -->
+            <div @click="checkPermission(room.id, room.name)">입장</div>
+            <div v-if="isOwner(room.ownerName)" @click="deleteRoom(room.id)">삭제</div>
         </li>
 
     </ul>
@@ -96,8 +97,8 @@
         },
         computed: {
             isOwner(){
-                return (roomOwnerId) => {
-                    return this.memberInfo.id === roomOwnerId;
+                return (ownerName) => {
+                    return this.memberInfo.name === ownerName;
                 }
             }
         },
@@ -106,9 +107,10 @@
                 let result = confirm("채팅방을 삭제 하시겠습니까?");
                 if(!result) return;
 
-                await axios.delete('/chat/room', {data: {
+                await axios.delete('/api/chat/room', {
+                    data: {
                         type: "DELETE",
-                        memberId: member.id,
+                        participationId: this.memberInfo.id,
                         roomId: roomId
                     }
                 }).then(response => {
@@ -117,61 +119,61 @@
             },
             async getMemberInfo () {
                 await axios.get('/member').then(response => {
-                    this.memberInfo = response.data;
-                    localStorage.setItem('memberInfo', JSON.stringify(response.data));
+                    this.memberInfo = response.data.body;
+                    localStorage.setItem('memberInfo', JSON.stringify(response.data.body));
                 });
             },
             findAllRoom: function() {
-                axios.get('/chat/rooms').then(response => { this.chatRooms = response.data; });
+                axios.get('/api/chat/rooms').then(response => {
+                    this.chatRooms = response.data.body;
+                });
             },
             createRoom: function() {
                 if("" === this.roomName) {
                     alert("Please enter a room title.");
                     return;
-                } else {
-                    var params = new URLSearchParams();
-                    params.append("roomName", this.roomName);
-                    params.append("memberId", this.memberInfo.id);
-                    axios.post('/chat/room', params)
-                        .then(
-                            response => {
-                                alert(response.data.roomName+"방 개설에 성공하였습니다.")
-                                this.roomName = '';
-                                this.findAllRoom();
-                            }
-                        )
-                        .catch( () => {
-                                alert("채팅방 개설에 실패하였습니다.");
-                            }
-                        );
                 }
+
+                const params = new URLSearchParams();
+                params.append("roomName", this.roomName);
+                params.append("memberId", this.memberInfo.id);
+
+                axios.post('/api/chat/room', params)
+                    .then(
+                        response => {
+                            alert(response.data.body.name+"방 개설에 성공하였습니다.")
+                            this.roomName = '';
+                            this.findAllRoom();
+                        }
+                    )
+                    .catch( () => {
+                            alert("채팅방 개설에 실패하였습니다.");
+                        }
+                    );
             },
-            checkPermission: async function(roomId,owner, roomName) {
-                await axios.post('/chat/room/credential', {
+            checkPermission: async function(roomId, roomName) {
+                await axios.post('/api/chat/room/credential', {
                     memberId: this.memberInfo.id,
                     roomId: roomId,
                     password: ""
                 }).then(response => {
                     const data = response.data;
                     const isPermit = data.body;
+
                     if(isPermit) {
                         this.enterRoom(roomId, roomName);
                     }else {
-                        this.readyEnterRoom(roomId,owner, roomName)
+                        this.readyEnterRoom(roomId, roomName)
                     }
                 });
             },
-            readyEnterRoom: async function(roomId, owner, roomName) {
-                let key = "";
-                if (this.memberInfo.id !== owner.id){
-                    key = prompt("비밀번호를 입력해주세요");
-
-                    if (key.trim() === "") {
-                        return;
-                    }
+            readyEnterRoom: async function(roomId, roomName) {
+                let key = prompt("비밀번호를 입력해주세요");
+                if (key && key.trim() === "") {
+                    return;
                 }
 
-                await axios.post('/chat/key',{
+                await axios.post('/api/chat/key',{
                     memberId: this.memberInfo.id,
                     roomId: roomId,
                     password: key
@@ -184,7 +186,7 @@
             enterRoom(roomId, roomName) {
                 localStorage.setItem('chatRoom.roomName',roomName);
                 localStorage.setItem('chatRoom.roomId',roomId);
-                location.href="/chat/room/enter/"+roomId;
+                location.href="/chat/room/"+roomId;
             }
         }
     });
