@@ -1,7 +1,7 @@
 package com.example.chat;
 
-import com.example.chat.config.dummy.MemberDummyDataInit;
-import com.example.chat.repository.MemberRepository;
+import com.example.chat.domain.member.domain.MemberRepository;
+import com.example.chat.global.web.dummymember.MemberDummyDataInit;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
