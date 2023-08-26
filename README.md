@@ -1,16 +1,17 @@
 # Spring Boot chat application
 
-Spring Boot와 WebSocket을 이용한 기본적인 실시간 채팅 기능을 구현
+Redis와 Stomp를 이용한 기본적인 실시간 채팅 애플리케이션
 
 ### 메인 기술 스택
 
 - Java 11
 - Spring Boot 2.x.x
-- Spring WebSocket
+- WebSocket/Stomp
 - JPA
 - MySQL
+- H2
 - Redis Pub/Sub
-- SpringSecurity
+- Spring Security
 - Vue
 - Freemarker
 
