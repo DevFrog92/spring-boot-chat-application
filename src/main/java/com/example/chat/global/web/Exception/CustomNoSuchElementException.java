@@ -1,6 +1,6 @@
 package com.example.chat.global.web.Exception;
 
-public class CustomNoSuchElementException extends RuntimeException {
+public class CustomNoSuchElementException extends CustomRuntimeException {
     public CustomNoSuchElementException() {
         super();
     }

@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class CustomGlobalExceptionHandler {
 
-    @ExceptionHandler({CustomNoSuchElementException.class})
+    @ExceptionHandler({CustomRuntimeException.class})
     public ResponseEntity<?> handleNoSuchElementException(
-            CustomNoSuchElementException ex) {
+            CustomRuntimeException ex) {
 
         return new ResponseEntity<>(
                 new ResponseDto<>(
