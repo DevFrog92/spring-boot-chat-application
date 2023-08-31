@@ -76,7 +76,7 @@ public class ChatRoom {
                 .type(type)
                 .secretCode(secretCode)
                 .maxChatRoomSize(maxChatRoomSize)
-                .participationNum(participationNum - 1)
+                .participationNum(Math.max(participationNum - 1,0))
                 .member(member)
                 .build();
     }
