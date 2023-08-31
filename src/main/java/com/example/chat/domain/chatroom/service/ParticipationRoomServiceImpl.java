@@ -62,7 +62,7 @@ public class ParticipationRoomServiceImpl implements ParticipationRoomService {
         Optional<ParticipationRoom> participationRoom = participationRoomRepository
                 .getByMemberAndRoom(member, room);
 
-        return participationRoom.map(ParticipationRoom::isCertified).orElse(false);
+        return participationRoom.map(ParticipationRoom::getSubmitKey).orElse(false);
     }
 
     @Transactional
@@ -70,7 +70,7 @@ public class ParticipationRoomServiceImpl implements ParticipationRoomService {
         Optional<ParticipationRoom> participationRoom = participationRoomRepository
                 .getByMemberAndRoom(member, room);
 
-        return participationRoom.map(ParticipationRoom::getJoinState).orElse(false);
+        return participationRoom.map(ParticipationRoom::getJoined).orElse(false);
     }
 
     @Override
