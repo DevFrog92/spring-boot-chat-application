@@ -3,7 +3,7 @@ package com.example.chat.domain.member.service;
 import com.example.chat.domain.member.domain.Member;
 import com.example.chat.domain.member.service.port.MemberService;
 import com.example.chat.domain.mock.FakeMemberRepository;
-import com.example.chat.global.web.Exception.CustomNoSuchElementException;
+import com.example.chat.domain.common.domain.Exception.CustomNoSuchElementException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
