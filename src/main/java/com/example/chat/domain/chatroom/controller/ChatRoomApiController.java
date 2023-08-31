@@ -1,11 +1,15 @@
 package com.example.chat.domain.chatroom.controller;
 
-import com.example.chat.domain.chatroom.dto.chatroom.CreateRoomDto;
-import com.example.chat.domain.chatroom.dto.message.ChatNoticeDto;
-import com.example.chat.global.web.dto.ResponseDto;
-import com.example.chat.domain.chatroom.dto.chatroom.RoomInfoDto;
-import com.example.chat.domain.chatroom.dto.chatroom.SubmitSecretKeyDto;
-import com.example.chat.domain.chatroom.service.ChatRoomService;
+import com.example.chat.domain.chatroom.controller.dto.request.RequestBanMemberDto;
+import com.example.chat.domain.chatroom.controller.dto.request.RequestDto;
+import com.example.chat.domain.chatroom.controller.dto.request.RequestSubmitCodeDto;
+import com.example.chat.domain.chatroom.controller.dto.response.ChatRoomInfoResponse;
+import com.example.chat.domain.chatroom.controller.dto.response.PermissionResponseDto;
+import com.example.chat.domain.chatroom.controller.facade.ChatRoomFacade;
+import com.example.chat.domain.chatroom.controller.facade.PermissionType;
+import com.example.chat.domain.chatroom.domain.ChatRoom;
+import com.example.chat.domain.chatroom.domain.ChatRoomCreate;
+import com.example.chat.domain.common.controller.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -14,19 +18,23 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
-import static com.example.chat.domain.chatroom.dto.chatroom.ChatRoomType.PUBLIC;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
 @RequestMapping("/api/chat")
 @RequiredArgsConstructor
 public class ChatRoomApiController {
-    private final ChatRoomService chatRoomService;
+    private final ChatRoomFacade chatRoomFacade;
 
     @GetMapping("/rooms")
     public ResponseEntity<?> rooms(Authentication auth) {
-        List<RoomInfoDto> allRooms = chatRoomService.findAllRooms(auth.getName());
+        String name = auth.getName();
+        List<ChatRoomInfoResponse> allRooms =
+                chatRoomFacade.findAllRooms(name)
+                        .stream()
+                        .map(ChatRoomInfoResponse::from)
+                        .collect(Collectors.toList());
 
         return new ResponseEntity<>(
                 new ResponseDto<>(
@@ -39,64 +47,113 @@ public class ChatRoomApiController {
 
     @GetMapping("/room/{roomId}")
     public ResponseEntity<?> roomInfo(@PathVariable Long roomId) {
-        RoomInfoDto roomInfo = chatRoomService.getRoomInfo(roomId);
+        ChatRoom chatroom = chatRoomFacade.getInfo(roomId);
+
         return new ResponseEntity<>(
                 new ResponseDto<>(
                         "채팅방 정보를 조회했습니다.",
-                        roomInfo
+                        ChatRoomInfoResponse.from(chatroom)
                 ),
                 HttpStatus.OK
         );
     }
 
     @PostMapping("/room")
-    public ResponseEntity<?> createRoom(@RequestBody CreateRoomDto dto) {
-        RoomInfoDto room;
-        if (dto.getType().equals(PUBLIC)) {
-            room = chatRoomService.createPublicRoom(dto);
-        }else {
-            room = chatRoomService.createPrivateRoom(dto);
-        }
+    public ResponseEntity<?> createRoom(@RequestBody ChatRoomCreate chatRoomCreate) {
+        ChatRoom chatRoom = chatRoomFacade.create(chatRoomCreate);
 
         return new ResponseEntity<>(
                 new ResponseDto<>(
                         "채팅방 개설을 성공했습니다.",
-                        room
+                        ChatRoomInfoResponse.from(chatRoom)
                 ),
                 HttpStatus.OK
         );
     }
 
     @PostMapping("/key")
-    public ResponseEntity<?> submitSecretKey(@RequestBody SubmitSecretKeyDto dto) {
-        boolean result = chatRoomService.checkSubmitSecretKey(dto);
-        HttpStatus status = result ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
-        String message = result ? "인증에 성공했습니다." : "비밀번호를 확인해주세요.";
+    public ResponseEntity<?> submitSecretKey(@RequestBody RequestSubmitCodeDto requestSubmitCode) {
+        Long memberId = requestSubmitCode.getMemberId();
+        Long roomId = requestSubmitCode.getRoomId();
+        String code = requestSubmitCode.getSecretCode();
+
+        chatRoomFacade.submitCode(memberId, roomId, code);
+
+        return new ResponseEntity<>(
+                new ResponseDto<>(
+                        "인증에 성공했습니다.",
+                        null
+                ),
+                HttpStatus.ACCEPTED);
+    }
+
+    @DeleteMapping("/room")
+    public ResponseEntity<?> deleteRoom(@RequestBody RequestDto requestDto) {
+        Long memberId = requestDto.getRequestMemberId();
+        Long roomId = requestDto.getRoomId();
+
+        chatRoomFacade.delete(memberId, roomId);
+        // todo send chat message to all rooms
+
+        return new ResponseEntity<>(
+                new ResponseDto<>(
+                        "성공적으로 채팅방을 삭제했습니다",
+                        null
+                ),
+                HttpStatus.OK);
+    }
+
+    @PostMapping("/permission")
+    public ResponseEntity<?> checkPermission(@RequestBody RequestDto requestDto) {
+        PermissionType type = chatRoomFacade.checkPermission(
+                requestDto.getRoomId(), requestDto.getRequestMemberId());
+
+        String message = type.equals(PermissionType.ALLOW) ? "인증에 성공했습니다." : "인증에 실패했습니다.";
+
         return new ResponseEntity<>(
                 new ResponseDto<>(
                         message,
-                        null
+                        PermissionResponseDto.from(type)
                 ),
-                status);
+                HttpStatus.OK);
     }
 
-    @PostMapping("/room/credential")
-    public ResponseEntity<?> getMemberCredentialOfChatRoom(@RequestBody SubmitSecretKeyDto dto) {
-        boolean isPermitted = chatRoomService.isPermitMemberEnterChatRoom(
-                dto.getRoomId(),
-                dto.getMemberId());
+    @PostMapping("/room/{roomId}/join")
+    public ResponseEntity<?> join(@RequestBody RequestDto requestDto) {
+        chatRoomFacade.enter(requestDto.getRequestMemberId(), requestDto.getRoomId());
 
         return new ResponseEntity<>(
                 new ResponseDto<>(
-                        "신원 조회를 완료했습니다.",
-                        isPermitted
+                        "성공적으로 입장했습니다.",
+                        null
                 ),
                 HttpStatus.OK
         );
     }
 
-    @DeleteMapping("/room")
-    public void deleteRoom(@RequestBody ChatNoticeDto dto) {
-        chatRoomService.deleteRoom(dto);
+    @PostMapping("/room/{roomId}/leave")
+    public ResponseEntity<?> leave(@RequestBody RequestDto requestDto) {
+        chatRoomFacade.leave(requestDto.getRequestMemberId(), requestDto.getRoomId());
+
+        return new ResponseEntity<>(
+                new ResponseDto<>(
+                        "성공적으로 입장했습니다.",
+                        null
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    @PostMapping("/room/{roomId}/ban/{memberName}")
+    public ResponseEntity<?> ban(@RequestBody RequestBanMemberDto banMemberDto) {
+        chatRoomFacade.ban(banMemberDto.getBanMemberName(), banMemberDto.getRoomId());
+
+        return new ResponseEntity<>(
+                new ResponseDto<>(
+                        "성공적으로 강퇴했습니다.",
+                        null
+                ),
+                HttpStatus.OK
+        );
     }
 }
