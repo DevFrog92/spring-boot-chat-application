@@ -1,8 +1,8 @@
 package com.example.chat.domain.member.controller;
 
-import com.example.chat.global.web.dto.ResponseDto;
-import com.example.chat.domain.member.dto.MemberInfoDto;
-import com.example.chat.domain.member.service.MemberService;
+import com.example.chat.domain.member.controller.facade.MemberFacade;
+import com.example.chat.domain.member.controller.response.MemberInfoResponse;
+import com.example.chat.domain.common.controller.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,15 +17,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/member")
 @RequiredArgsConstructor
 public class MemberController {
-    private final MemberService memberService;
+    private final MemberFacade memberFacade;
 
     @GetMapping
-    public ResponseEntity<?> getMemberInfo(Authentication auth) {
-        MemberInfoDto memberInfo = memberService.getMemberInfoWithToken(auth.getName());
+    public ResponseEntity<?> getInfo(Authentication auth) {
+        String name = auth.getName();
+        MemberInfoResponse info = memberFacade.getInfo(name);
+
         return new ResponseEntity<>(
                 new ResponseDto<>(
                         "회원 조회를 완료했습니다.",
-                        memberInfo
+                        info
                 ),
                 HttpStatus.OK
         );
