@@ -1,6 +1,6 @@
 package com.example.chat.global.config.redis;
 
-import com.example.chat.global.redis.pubsub.RedisSubscribe;
+import com.example.chat.domain.common.service.port.RedisSubscribe;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;

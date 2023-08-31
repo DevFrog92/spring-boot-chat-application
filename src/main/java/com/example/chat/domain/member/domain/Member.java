@@ -1,39 +1,33 @@
 package com.example.chat.domain.member.domain;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 
 @Getter
-@Entity
-@NoArgsConstructor
-@AllArgsConstructor
 public class Member {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String name;
-    private String nickname;
+    private final Long id;
+    private final String name;
+    private final String nickname;
 
     @Builder
-    public Member(String name,
-                  String nickname) {
+    public Member(Long id, String name, String nickname) {
+        this.id = id;
         this.name = name;
         this.nickname = nickname;
     }
 
-    @Override
-    public String toString() {
-        return "Member{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", nickname='" + nickname + '\'' +
-                '}';
+    public static Member from(MemberCreate memberCreate) {
+        return Member.builder()
+                .name(memberCreate.getName())
+                .nickname(memberCreate.getNickName())
+                .build();
+    }
+
+    public Member update(MemberUpdate memberUpdate) {
+        return Member.builder()
+                .id(id)
+                .name(name)
+                .nickname(memberUpdate.getNickname())
+                .build();
     }
 }

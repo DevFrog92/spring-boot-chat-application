@@ -84,10 +84,10 @@
     <hr/>
     <ul class="list-group mt-4">
         <li class="list-group-item mb-4 list-group-item-action" v-for="room in chatRooms" v-bind:key="room.id">
-            <h4 class="room-name"><span class="room-name-text"><span v-if="room.type === 'PRIVATE'" class="lock-icon">&#128274;</span>{{room.name}}</span> <span class="badge bg-primary text-white">{{room.participationNum}} / {{room.maxChatRoomSize}}</span></h4>
+            <h4 class="room-name"><span class="room-name-text"><span v-if="room.type === 'PRIVATE'" class="lock-icon">&#128274;</span>{{room.name}}</span> <span class="badge bg-primary text-white">{{room.participationNum}} / {{room.maxPeopleAllowNum}}</span></h4>
             <div class="row mt-4">
                 <div class="col-6">
-                    <button class="btn-sm btn btn-primary" type="button" @click="checkPermission(room.id, room.name)">입장</button>
+                    <button class="btn-sm btn btn-primary" type="button" @click="checkPermission(room.id, room.name, room.type)">입장</button>
                 </div>
                 <div class="col-6 text-right " v-if="isOwner(room.ownerName)">
                     <button class="btn-sm btn btn-danger" type="button" @click="deleteRoom(room.id)">삭제</button>
@@ -107,7 +107,7 @@
         data: {
             roomName : '',
             isPrivate: false,
-            roomPassword: "",
+            roomPassword: null,
             chatRooms: [],
             memberInfo: null
         },
@@ -123,14 +123,14 @@
             }
         },
         methods: {
-            async deleteRoom(roomId, member) {
+            async deleteRoom(roomId) {
                 let result = confirm("채팅방을 삭제 하시겠습니까?");
                 if(!result) return;
 
                 await axios.delete('/api/chat/room', {
                     data: {
                         type: "DELETE",
-                        participationId: this.memberInfo.id,
+                        requestMemberId: this.memberInfo.id,
                         roomId: roomId
                     }
                 }).then(response => {
@@ -161,9 +161,10 @@
 
                 const data = {
                     requestMemberId: this.memberInfo.id,
-                    roomName: this.roomName,
+                    name: this.roomName,
                     type: this.isPrivate ? "PRIVATE": "PUBLIC",
-                    secretKey: this.roomPassword
+                    secretKey: this.roomPassword,
+                    maxPeopleAllowNum: 100
                 }
 
 
@@ -182,19 +183,24 @@
                         }
                     );
             },
-            checkPermission: async function(roomId, roomName) {
-                await axios.post('/api/chat/room/credential', {
-                    memberId: this.memberInfo.id,
-                    roomId: roomId,
-                    password: ""
-                }).then(response => {
-                    const data = response.data;
-                    const isPermit = data.body;
+            checkPermission: async function(roomId, roomName, type) {
+                if(type === "PUBLIC") {
+                    this.enterRoom(roomId, roomName);
+                    return;
+                }
 
-                    if(isPermit) {
+                await axios.post('/api/chat/permission', {
+                    requestMemberId: this.memberInfo.id,
+                    roomId: roomId,
+                }).then(response => {
+                    const permissionType = response.data.body.type;
+
+                    if(permissionType === "ALLOW") {
                         this.enterRoom(roomId, roomName);
-                    }else {
+                    }else if(permissionType === "NEED_PASSWORD") {
                         this.readyEnterRoom(roomId, roomName)
+                    }else {
+                        alert("채팅방에 입장할 수 없습니다.");
                     }
                 });
             },
@@ -207,7 +213,7 @@
                 await axios.post('/api/chat/key',{
                     memberId: this.memberInfo.id,
                     roomId: roomId,
-                    password: key
+                    secretCode: key
                 }).then(response => {
                     this.enterRoom(roomId, roomName);
                 }).catch(() => {

@@ -1,7 +1,7 @@
 package com.example.chat;
 
-import com.example.chat.domain.member.domain.MemberRepository;
-import com.example.chat.global.web.dummymember.MemberDummyDataInit;
+import com.example.chat.domain.member.infrastructure.MemberJpaRepository;
+import com.example.chat.global.dummymember.MemberDummyDataInit;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +18,7 @@ public class ChatApplication {
 
     @Bean
     @Profile("test")
-    public MemberDummyDataInit memberTestDataInit(MemberRepository userRepository) {
+    public MemberDummyDataInit memberTestDataInit(MemberJpaRepository userRepository) {
         return new MemberDummyDataInit(userRepository);
     }
 }

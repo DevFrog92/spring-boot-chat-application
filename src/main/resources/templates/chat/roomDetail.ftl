@@ -189,7 +189,9 @@
                 .then(response => {
                     _this.roomInfo = response.data.body;
                     _this.userCount = response.data.body.participationNum;
-                   ws.connect({"token": _this.memberInfo.token}, function() {
+
+                   ws.connect({"token": _this.memberInfo.token}, function(frame) {
+                       console.log(frame)
                        ws.subscribe("/sub/chat/room/"+_this.roomId, function(message) {
                            const subscribe = JSON.parse(message.body);
 
@@ -218,16 +220,19 @@
                           _this.leaveRoom();
                        });
 
-                       ws.send("/pub/chat/enter", {"token": _this.memberInfo.token},
-                           JSON.stringify({type: 'JOIN', roomId: _this.roomId, participationId:_this.memberInfo.id}), function(message) {
-                                const body = JSON.parse(message.body);
-                                console.log("message", body);
-                           });
+                       _this.enterChatRoom(_this.memberInfo.id, _this.roomId);
+
                    }, function (error) {
                        alert("Connection fail!", error);
                        location.href = "/chat/room";
                    });
+                }).catch(() => {
+                    this.moveToHome();
                 });
+        },
+        beforeDestroy() {
+            console.log("destroy");
+            this.clearLocalhost();
         },
         computed: {
             iconText() {
@@ -250,17 +255,41 @@
             },
         },
         methods: {
+            async enterChatRoom(requestMemberId, roomId) {
+                await axios.post('/api/chat/room/'+roomId+'/join', {
+                    requestMemberId,
+                    roomId,
+                }).catch((error) => {
+                    console.log(error.response);
+                    alert(error.response.data.message);
+                    this.moveToHome();
+                })
+            },
             moveToHome() {
                 location.href="/chat/room"
             },
-            banMember: function(username) {
-                ws.send("/pub/chat/ban", {"token": this.memberInfo.token},
-                JSON.stringify({type: 'BAN', roomId: this.roomId, requestMemberId: this.memberInfo.id, banMemberName: username}))
+            banMember: async function(username) {
+                await axios.post('/api/chat/room/'+this.roomId+'/ban/'+username, {
+                    requestMemberId: this.memberInfo.id,
+                    roomId: this.roomId,
+                    banMemberName: username
+                }).catch((error) => {
+                        console.log(error.response);
+                        alert(error.response.data.message);
+                    })
             },
-            leaveRoom: function() {
-                ws.send("/pub/chat/leave", {"token": this.memberInfo.token},
-                    JSON.stringify({type: 'QUIT', roomId: this.roomId, participationId:this.memberInfo.id}));
-                this.moveToHome();
+            leaveRoom: async function() {
+                await axios.post('/api/chat/room/'+this.roomId+'/leave', {
+                    requestMemberId: this.memberInfo.id,
+                    roomId: this.roomId,
+                }).then((response) => {
+                    this.moveToHome();
+                })
+                    .catch((error) => {
+                    console.log(error.response);
+                    alert(error.response.data.message);
+                    this.moveToHome();
+                })
             },
             sendMessage: function(type) {
                 ws.send("/pub/chat/message", {"token": this.memberInfo.token},
@@ -276,6 +305,10 @@
                         "message":subscribe.message
                     }
                 );
+            },
+            clearLocalhost() {
+                localStorage.removeItem("chatRoom.roomId");
+                localStorage.removeItem("chatRoom.roomName");
             }
         }
     });
