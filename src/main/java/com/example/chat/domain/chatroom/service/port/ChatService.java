@@ -1,4 +1,4 @@
-package com.example.chat.domain.chatroom.service;
+package com.example.chat.domain.chatroom.service.port;
 
 import com.example.chat.domain.chatroom.dto.message.ChatMessageDto;
 import com.example.chat.domain.chatroom.dto.message.ChatMessageType;
