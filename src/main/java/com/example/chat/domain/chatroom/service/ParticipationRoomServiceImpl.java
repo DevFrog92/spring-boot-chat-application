@@ -1,10 +1,11 @@
 package com.example.chat.domain.chatroom.service;
 
+import com.example.chat.domain.chatroom.domain.ChatRoom;
 import com.example.chat.domain.chatroom.domain.ParticipationRoom;
-import com.example.chat.domain.chatroom.dto.chatroom.RoomDto;
-import com.example.chat.global.web.Exception.CustomNoSuchElementException;
-import com.example.chat.domain.member.dto.MemberDto;
-import com.example.chat.domain.chatroom.domain.ParticipationRoomRepository;
+import com.example.chat.domain.chatroom.service.port.ParticipationChatRoomRepository;
+import com.example.chat.domain.chatroom.service.port.ParticipationRoomService;
+import com.example.chat.domain.member.domain.Member;
+import com.example.chat.domain.common.domain.Exception.CustomNoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,93 +17,71 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class ParticipationRoomServiceImpl implements ParticipationRoomService {
-    private final ParticipationRoomRepository participationRoomRepository;
+    private final ParticipationChatRoomRepository participationRoomRepository;
 
     @Override
-    @Transactional
-    public void join(MemberDto member, RoomDto room) {
-        ParticipationRoom participationRoom = participationRoomRepository
-                .findByMemberAndRoom(
-                        member.getEntity(),
-                        room.getEntity())
-                .orElseThrow(() ->
-                        new CustomNoSuchElementException(
-                                "Participation room does not exist"));
+    public ParticipationRoom getByMemberAndRoom(Member member, ChatRoom room) {
+        return participationRoomRepository.getByMemberAndRoom(member, room).orElse(null);
+    }
 
-        participationRoom.setFirstJoin(true);
+    @Override
+    public boolean existParticipationRoom(Member member, ChatRoom room) {
+        return participationRoomRepository.getByMemberAndRoom(member, room).isEmpty();
     }
 
     @Override
     @Transactional
-    public void createParticipationRelation(MemberDto member, RoomDto room) {
-        participationRoomRepository.save(
-                ParticipationRoom.builder()
-                        .member(member.getEntity())
-                        .room(room.getEntity())
-                        .joined(true)
-                        .submitKey(true)
-                        .build()
-        );
+    public void join(Member member, ChatRoom room) {
+        ParticipationRoom participationRoom = participationRoomRepository.getByMemberAndRoom(member, room)
+                .orElseThrow(() -> new CustomNoSuchElementException("Participation info does not exist"));
+        participationRoom = participationRoom.join(member, room);
+        saveParticipationRoom(participationRoom);
+    }
+
+    @Transactional
+    public void create(Member member, ChatRoom room) {
+        ParticipationRoom participationRoom = ParticipationRoom.create(member, room);
+        saveParticipationRoom(participationRoom);
     }
 
     @Override
     @Transactional
-    public void submitSecretKey(MemberDto member, RoomDto room) {
-        ParticipationRoom chatRoom = ParticipationRoom.builder()
-                .member(member.getEntity())
-                .room(room.getEntity())
-                .joined(false)
-                .submitKey(true)
-                .build();
+    public void submitSecretKey(Member member, ChatRoom room, String code) {
+        ParticipationRoom participationRoom = ParticipationRoom.create(member, room);
+        participationRoom = participationRoom.certificate(code);
+        saveParticipationRoom(participationRoom);
+    }
 
-        participationRoomRepository.save(chatRoom);
+    private void saveParticipationRoom(ParticipationRoom participationRoom) {
+        participationRoomRepository.save(participationRoom);
     }
 
     @Override
     @Transactional
-    public boolean isPermitMember(MemberDto member, RoomDto room) {
-        Optional<ParticipationRoom> participationRoom =
-                participationRoomRepository.findByMemberAndRoom(
-                        member.getEntity(),
-                        room.getEntity()
-                );
+    public boolean isCertifiedMember(Member member, ChatRoom room) {
+        Optional<ParticipationRoom> participationRoom = participationRoomRepository
+                .getByMemberAndRoom(member, room);
 
-        if (participationRoom.isPresent()) {
-            return participationRoom.get().getSubmitKey();
-        }
+        return participationRoom.map(ParticipationRoom::isCertified).orElse(false);
+    }
 
-        return false;
+    @Transactional
+    public boolean alreadyJoined(Member member, ChatRoom room) {
+        Optional<ParticipationRoom> participationRoom = participationRoomRepository
+                .getByMemberAndRoom(member, room);
+
+        return participationRoom.map(ParticipationRoom::getJoinState).orElse(false);
     }
 
     @Override
     @Transactional
-    public boolean alreadyJoinChatRoom(MemberDto member, RoomDto room) {
-        Optional<ParticipationRoom> participationRoom =
-                participationRoomRepository.findByMemberAndRoom(
-                        member.getEntity(),
-                        room.getEntity()
-                );
-
-        if (participationRoom.isPresent()) {
-            return participationRoom.get().getJoined();
-        }
-
-        return false;
+    public void deleteAllByRoom(ChatRoom room) {
+        participationRoomRepository.deleteAllByRoom(room);
     }
 
     @Override
     @Transactional
-    public void deleteAllParticipationRelationByRoom(RoomDto room) {
-        participationRoomRepository.deleteAllByRoom(room.getEntity());
-    }
-
-    @Override
-    @Transactional
-    public void deleteParticipationRelationByRoomAndMember(RoomDto room,
-                                                           MemberDto member) {
-        participationRoomRepository.deleteByRoomAndMember(
-                room.getEntity(),
-                member.getEntity()
-        );
+    public void deleteByMemberAndRoom(Member member, ChatRoom room) {
+        participationRoomRepository.deleteByMemberAndRoom(member, room);
     }
 }
