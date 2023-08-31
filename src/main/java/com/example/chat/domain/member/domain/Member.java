@@ -5,9 +5,9 @@ import lombok.Getter;
 
 @Getter
 public class Member {
-    private Long id;
-    private String name;
-    private String nickname;
+    private final Long id;
+    private final String name;
+    private final String nickname;
 
     @Builder
     public Member(Long id, String name, String nickname) {

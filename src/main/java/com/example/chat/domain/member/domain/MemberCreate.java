@@ -1,6 +1,5 @@
 package com.example.chat.domain.member.domain;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,9 +9,7 @@ public class MemberCreate {
     private final String nickName;
 
     @Builder
-    public MemberCreate(
-            @JsonProperty("name") String name,
-            @JsonProperty("nickname") String nickName) {
+    public MemberCreate(String name, String nickName) {
         this.name = name;
         this.nickName = nickName;
     }
