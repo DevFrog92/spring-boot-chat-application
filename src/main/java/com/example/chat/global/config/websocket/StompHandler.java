@@ -1,6 +1,6 @@
-package com.example.chat.global.config.websocket.handler;
+package com.example.chat.global.config.websocket;
 
-import com.example.chat.global.jwt.provider.JwtProvider;
+import com.example.chat.domain.common.service.port.JwtHolder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Component
 public class StompHandler implements ChannelInterceptor {
-    private final JwtProvider jwtService;
+    private final JwtHolder jwtHolder;
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -22,7 +22,7 @@ public class StompHandler implements ChannelInterceptor {
 
         if (StompCommand.CONNECT == accessor.getCommand()) {
             String jwtToken = accessor.getFirstNativeHeader("token");
-            jwtService.validateToken(jwtToken);
+            jwtHolder.validateToken(jwtToken);
         }
 
         return ChannelInterceptor.super.preSend(message, channel);

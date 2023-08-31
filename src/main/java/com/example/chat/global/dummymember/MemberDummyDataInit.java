@@ -1,4 +1,4 @@
-package com.example.chat.global.web.dummymember;
+package com.example.chat.global.dummymember;
 
 import com.example.chat.domain.member.infrastructure.entity.MemberEntity;
 import com.example.chat.domain.member.infrastructure.MemberJpaRepository;
