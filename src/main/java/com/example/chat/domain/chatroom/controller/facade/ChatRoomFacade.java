@@ -7,6 +7,9 @@ import java.util.List;
 
 public interface ChatRoomFacade {
     ChatRoom create(ChatRoomCreate chatRoomCreate);
+    void enter(Long memberId, Long roomId);
+    void leave(Long memberId, Long roomId);
+    void ban(String memberName, Long roomId);
     void delete(Long memberId, Long roomId);
     void submitCode(Long memberId, Long roomId, String code);
     ChatRoom getInfo(Long roomId);
