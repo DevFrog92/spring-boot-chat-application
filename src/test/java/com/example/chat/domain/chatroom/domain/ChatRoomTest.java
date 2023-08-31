@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ChatRoomTest {
 
     @Test
-    void ChatRoom_은_Member_와_ChatRoomCreate_객체로_생성할_수_있다() {
+    void create_메서드는_Member_와_ChatRoomCreate_객체를_파라미터로_받아_ChatRoom_객체를_생성할_수_있다() {
         //given
         Member member = Member.builder()
                 .id(1L)
