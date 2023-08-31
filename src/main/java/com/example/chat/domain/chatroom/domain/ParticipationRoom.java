@@ -1,48 +1,74 @@
 package com.example.chat.domain.chatroom.domain;
 
 import com.example.chat.domain.member.domain.Member;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import java.util.Objects;
 
 @Getter
-@Entity
 @NoArgsConstructor
-@AllArgsConstructor
 public class ParticipationRoom {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
-    @JoinColumn(name = "member")
     private Member member;
-    @ManyToOne
-    @JoinColumn(name = "room")
-    private Room room;
-    private Boolean submitKey = false;
-    private Boolean joined = false;
+    private ChatRoom chatRoom;
+    private Boolean submitKey;
+    private Boolean joined;
 
     @Builder
-    public ParticipationRoom(Member member, Room room, Boolean submitKey, Boolean joined) {
+    public ParticipationRoom(Long id,
+                             Member member,
+                             ChatRoom chatRoom,
+                             Boolean submitKey,
+                             Boolean joined) {
+        this.id = id;
         this.member = member;
-        this.room = room;
+        this.chatRoom = chatRoom;
         this.submitKey = submitKey;
         this.joined = joined;
     }
 
-    public void setFirstJoin(Boolean joined) {
-        this.joined = joined;
+    public static ParticipationRoom create(Member member,
+                                           ChatRoom chatRoom) {
+        return ParticipationRoom.builder()
+                .member(member)
+                .chatRoom(chatRoom)
+                .submitKey(!chatRoom.getType().equals(ChatRoomType.PRIVATE))
+                .joined(false)
+                .build();
     }
 
-    @Override
-    public String toString() {
-        return "ParticipationRoom{" +
-                "id=" + id +
-                ", member=" + member +
-                ", room=" + room +
-                '}';
+    public ParticipationRoom join(Member member,
+                                  ChatRoom chatRoom) {
+        return ParticipationRoom.builder()
+                .id(id)
+                .member(member)
+                .chatRoom(chatRoom.join())
+                .submitKey(submitKey)
+                .joined(true)
+                .build();
+    }
+
+    public ParticipationRoom certificate(String secretCode) {
+        if (!Objects.equals(this.chatRoom.getSecretCode(), secretCode)) {
+            throw new RuntimeException("The code is bad! "); // fixme
+        }
+
+        return ParticipationRoom.builder()
+                .id(id)
+                .member(member)
+                .chatRoom(chatRoom)
+                .submitKey(true)
+                .joined(false)
+                .build();
+    }
+
+    public boolean getJoinState() {
+        return this.joined;
+    }
+
+    public boolean isCertified() {
+        return this.submitKey;
     }
 }
