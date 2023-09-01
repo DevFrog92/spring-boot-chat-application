@@ -18,13 +18,13 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public Member getByName(String name) {
-        return memberRepository.findByName(name)
+        return memberRepository.getByName(name)
                 .orElseThrow(() -> new CustomNoSuchElementException("Member not exist"));
     }
 
     @Override
     public Member getById(Long id) {
-        return memberRepository.findById(id)
+        return memberRepository.getById(id)
                 .orElseThrow(() -> new CustomNoSuchElementException("Member not exist"));
     }
 }
