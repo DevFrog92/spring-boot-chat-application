@@ -1,5 +1,6 @@
 package com.example.chat.domain.chatroom.domain;
 
+import com.example.chat.domain.chatroom.dto.ChatRoomCreate;
 import com.example.chat.domain.member.domain.Member;
 import org.junit.jupiter.api.Test;
 
@@ -139,6 +140,7 @@ class ChatRoomTest {
 
         //when
         boolean result = chatRoom.checkCode("asde#$%");
+
         //then
         assertThat(result).isTrue();
     }
