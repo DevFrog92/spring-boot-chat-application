@@ -13,12 +13,12 @@ public class FakeMemberRepository implements MemberRepository {
     private final List<Member> store = new ArrayList<>();
 
     @Override
-    public Optional<Member> findById(Long id) {
+    public Optional<Member> getById(Long id) {
         return store.stream().filter(member -> Objects.equals(member.getId(), id)).findAny();
     }
 
     @Override
-    public Optional<Member> findByName(String name) {
+    public Optional<Member> getByName(String name) {
         return store.stream().filter(member -> Objects.equals(member.getName(), name)).findAny();
     }
 
