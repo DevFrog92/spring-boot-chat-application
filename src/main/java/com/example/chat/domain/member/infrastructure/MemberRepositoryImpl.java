@@ -15,13 +15,13 @@ public class MemberRepositoryImpl implements MemberRepository {
     private final MemberJpaRepository memberJpaRepository;
 
     @Override
-    public Optional<Member> findById(Long id) {
+    public Optional<Member> getById(Long id) {
         return memberJpaRepository
                 .findById(id).map(MemberEntity::toModel);
     }
 
     @Override
-    public Optional<Member> findByName(String name) {
+    public Optional<Member> getByName(String name) {
         return memberJpaRepository
                 .findByName(name).map(MemberEntity::toModel);
     }

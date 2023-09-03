@@ -1,5 +1,6 @@
 package com.example.chat.domain.chatroom.domain;
 
+import com.example.chat.domain.common.Exception.CustomRuntimeException;
 import com.example.chat.domain.member.domain.Member;
 import lombok.Builder;
 import lombok.Getter;
@@ -52,7 +53,7 @@ public class ParticipationRoom {
 
     public ParticipationRoom certificate(String secretCode) {
         if (!Objects.equals(this.chatRoom.getSecretCode(), secretCode)) {
-            throw new RuntimeException("The code is bad! "); // fixme
+            throw new CustomRuntimeException("The code is bad! "); // fixme
         }
 
         return ParticipationRoom.builder()
@@ -62,13 +63,5 @@ public class ParticipationRoom {
                 .submitKey(true)
                 .joined(false)
                 .build();
-    }
-
-    public boolean getJoinState() {
-        return this.joined;
-    }
-
-    public boolean isCertified() {
-        return this.submitKey;
     }
 }

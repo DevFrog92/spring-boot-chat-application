@@ -3,12 +3,12 @@ package com.example.chat.domain.chatroom.controller;
 import com.example.chat.domain.chatroom.controller.dto.request.RequestBanMemberDto;
 import com.example.chat.domain.chatroom.controller.dto.request.RequestDto;
 import com.example.chat.domain.chatroom.controller.dto.request.RequestSubmitCodeDto;
-import com.example.chat.domain.chatroom.controller.dto.response.ChatRoomInfoResponse;
+import com.example.chat.domain.chatroom.controller.dto.response.ChatRoomInfoResponseDto;
 import com.example.chat.domain.chatroom.controller.dto.response.PermissionResponseDto;
 import com.example.chat.domain.chatroom.controller.facade.ChatRoomFacade;
 import com.example.chat.domain.chatroom.controller.facade.PermissionType;
 import com.example.chat.domain.chatroom.domain.ChatRoom;
-import com.example.chat.domain.chatroom.domain.ChatRoomCreate;
+import com.example.chat.domain.chatroom.dto.ChatRoomCreateDto;
 import com.example.chat.domain.common.controller.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,10 +30,10 @@ public class ChatRoomApiController {
     @GetMapping("/rooms")
     public ResponseEntity<?> rooms(Authentication auth) {
         String name = auth.getName();
-        List<ChatRoomInfoResponse> allRooms =
+        List<ChatRoomInfoResponseDto> allRooms =
                 chatRoomFacade.findAllRooms(name)
                         .stream()
-                        .map(ChatRoomInfoResponse::from)
+                        .map(ChatRoomInfoResponseDto::from)
                         .collect(Collectors.toList());
 
         return new ResponseEntity<>(
@@ -47,25 +47,25 @@ public class ChatRoomApiController {
 
     @GetMapping("/room/{roomId}")
     public ResponseEntity<?> roomInfo(@PathVariable Long roomId) {
-        ChatRoom chatroom = chatRoomFacade.getInfo(roomId);
+        ChatRoom chatroom = chatRoomFacade.getById(roomId);
 
         return new ResponseEntity<>(
                 new ResponseDto<>(
                         "채팅방 정보를 조회했습니다.",
-                        ChatRoomInfoResponse.from(chatroom)
+                        ChatRoomInfoResponseDto.from(chatroom)
                 ),
                 HttpStatus.OK
         );
     }
 
     @PostMapping("/room")
-    public ResponseEntity<?> createRoom(@RequestBody ChatRoomCreate chatRoomCreate) {
-        ChatRoom chatRoom = chatRoomFacade.create(chatRoomCreate);
+    public ResponseEntity<?> createRoom(@RequestBody ChatRoomCreateDto chatRoomCreateDto) {
+        ChatRoom chatRoom = chatRoomFacade.create(chatRoomCreateDto);
 
         return new ResponseEntity<>(
                 new ResponseDto<>(
                         "채팅방 개설을 성공했습니다.",
-                        ChatRoomInfoResponse.from(chatRoom)
+                        ChatRoomInfoResponseDto.from(chatRoom)
                 ),
                 HttpStatus.OK
         );

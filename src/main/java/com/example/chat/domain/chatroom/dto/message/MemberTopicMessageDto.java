@@ -1,7 +1,5 @@
 package com.example.chat.domain.chatroom.dto.message;
 
-import com.example.chat.domain.chatroom.dto.message.ChatMessage;
-import com.example.chat.domain.chatroom.dto.message.ChatMessageType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

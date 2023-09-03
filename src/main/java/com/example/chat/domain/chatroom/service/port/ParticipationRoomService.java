@@ -8,7 +8,6 @@ public interface ParticipationRoomService {
 
     ParticipationRoom getByMemberAndRoom(Member member, ChatRoom room);
 
-    boolean existParticipationRoom(Member member, ChatRoom room);
     void join(Member member, ChatRoom room);
 
     void create(Member member, ChatRoom room);

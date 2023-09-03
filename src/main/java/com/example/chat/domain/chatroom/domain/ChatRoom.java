@@ -1,5 +1,6 @@
 package com.example.chat.domain.chatroom.domain;
 
+import com.example.chat.domain.chatroom.dto.ChatRoomCreateDto;
 import com.example.chat.domain.member.domain.Member;
 import lombok.Builder;
 import lombok.Getter;
@@ -42,12 +43,12 @@ public class ChatRoom {
     }
 
     public static ChatRoom create(Member member,
-                                  ChatRoomCreate chatRoomCreate) {
+                                  ChatRoomCreateDto chatRoomCreateDto) {
         return ChatRoom.builder()
-                .name(chatRoomCreate.getName())
-                .type(chatRoomCreate.getType())
-                .secretCode(chatRoomCreate.getSecretKey())
-                .maxChatRoomSize(chatRoomCreate.getMaxPeopleAllowNum())
+                .name(chatRoomCreateDto.getName())
+                .type(chatRoomCreateDto.getType())
+                .secretCode(chatRoomCreateDto.getSecretKey())
+                .maxChatRoomSize(chatRoomCreateDto.getMaxChatRoomSize())
                 .participationNum(0)
                 .member(member)
                 .build();
@@ -76,7 +77,7 @@ public class ChatRoom {
                 .type(type)
                 .secretCode(secretCode)
                 .maxChatRoomSize(maxChatRoomSize)
-                .participationNum(participationNum - 1)
+                .participationNum(Math.max(participationNum - 1,0))
                 .member(member)
                 .build();
     }

@@ -1,4 +1,4 @@
-package com.example.chat.domain.common.domain.Exception;
+package com.example.chat.domain.common.Exception;
 
 import com.example.chat.domain.common.controller.dto.ResponseDto;
 import org.springframework.http.HttpStatus;

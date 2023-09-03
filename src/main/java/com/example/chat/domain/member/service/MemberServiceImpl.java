@@ -3,7 +3,7 @@ package com.example.chat.domain.member.service;
 import com.example.chat.domain.member.domain.Member;
 import com.example.chat.domain.member.service.port.MemberRepository;
 import com.example.chat.domain.member.service.port.MemberService;
-import com.example.chat.domain.common.domain.Exception.CustomNoSuchElementException;
+import com.example.chat.domain.common.Exception.CustomNoSuchElementException;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,13 +18,13 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public Member getByName(String name) {
-        return memberRepository.findByName(name)
+        return memberRepository.getByName(name)
                 .orElseThrow(() -> new CustomNoSuchElementException("Member not exist"));
     }
 
     @Override
     public Member getById(Long id) {
-        return memberRepository.findById(id)
+        return memberRepository.getById(id)
                 .orElseThrow(() -> new CustomNoSuchElementException("Member not exist"));
     }
 }

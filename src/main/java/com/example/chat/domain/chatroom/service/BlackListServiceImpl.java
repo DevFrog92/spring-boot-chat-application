@@ -5,6 +5,7 @@ import com.example.chat.domain.chatroom.domain.ChatRoom;
 import com.example.chat.domain.chatroom.service.port.BlackListRepository;
 import com.example.chat.domain.chatroom.service.port.BlackListService;
 import com.example.chat.domain.member.domain.Member;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
+@Builder
 @RequiredArgsConstructor
 public class BlackListServiceImpl implements BlackListService {
     private final BlackListRepository blackListRepository;
