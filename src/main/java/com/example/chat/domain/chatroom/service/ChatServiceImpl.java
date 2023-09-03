@@ -6,6 +6,7 @@ import com.example.chat.domain.chatroom.dto.message.ChatRoomInfoDto;
 import com.example.chat.domain.chatroom.dto.message.MemberTopicMessageDto;
 import com.example.chat.domain.chatroom.service.port.ChatService;
 import com.example.chat.domain.common.service.port.RedisPublish;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import static com.example.chat.domain.chatroom.dto.message.ChatMessageType.DELET
 import static com.example.chat.domain.chatroom.dto.message.ChatMessageType.NOTICE;
 
 @Slf4j
+@Builder
 @Service
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {

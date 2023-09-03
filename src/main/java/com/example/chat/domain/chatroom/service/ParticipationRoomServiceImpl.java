@@ -5,7 +5,8 @@ import com.example.chat.domain.chatroom.domain.ParticipationRoom;
 import com.example.chat.domain.chatroom.service.port.ParticipationChatRoomRepository;
 import com.example.chat.domain.chatroom.service.port.ParticipationRoomService;
 import com.example.chat.domain.member.domain.Member;
-import com.example.chat.domain.common.domain.Exception.CustomNoSuchElementException;
+import com.example.chat.domain.common.Exception.CustomNoSuchElementException;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import java.util.Optional;
 
 @Slf4j
 @Service
+@Builder
 @RequiredArgsConstructor
 public class ParticipationRoomServiceImpl implements ParticipationRoomService {
     private final ParticipationChatRoomRepository participationRoomRepository;
@@ -22,11 +24,6 @@ public class ParticipationRoomServiceImpl implements ParticipationRoomService {
     @Override
     public ParticipationRoom getByMemberAndRoom(Member member, ChatRoom room) {
         return participationRoomRepository.getByMemberAndRoom(member, room).orElse(null);
-    }
-
-    @Override
-    public boolean existParticipationRoom(Member member, ChatRoom room) {
-        return participationRoomRepository.getByMemberAndRoom(member, room).isEmpty();
     }
 
     @Override
