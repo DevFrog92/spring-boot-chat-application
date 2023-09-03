@@ -1,11 +1,11 @@
 package com.example.chat.domain.chatroom.service;
 
 import com.example.chat.domain.chatroom.domain.ChatRoom;
-import com.example.chat.domain.chatroom.dto.ChatRoomCreate;
+import com.example.chat.domain.chatroom.dto.ChatRoomCreateDto;
 import com.example.chat.domain.chatroom.service.port.ChatRoomRepository;
 import com.example.chat.domain.chatroom.service.port.ChatRoomService;
-import com.example.chat.domain.common.domain.Exception.CustomNoSuchElementException;
-import com.example.chat.domain.common.domain.Exception.CustomRuntimeException;
+import com.example.chat.domain.common.Exception.CustomNoSuchElementException;
+import com.example.chat.domain.common.Exception.CustomRuntimeException;
 import com.example.chat.domain.member.domain.Member;
 import com.example.chat.domain.mock.FakeChatRoomRepository;
 import org.assertj.core.api.Assertions;
@@ -41,7 +41,7 @@ class ChatRoomServiceImplTest {
                 .nickname("memberA nickname")
                 .build();
 
-        ChatRoomCreate chatroom = ChatRoomCreate.builder()
+        ChatRoomCreateDto chatroom = ChatRoomCreateDto.builder()
                 .requestMemberId(1L)
                 .name("chatroomA")
                 .type(PUBLIC)
@@ -141,7 +141,7 @@ class ChatRoomServiceImplTest {
                 .nickname("memberA nickname")
                 .build();
 
-        ChatRoomCreate chatRoomCreate = ChatRoomCreate.builder()
+        ChatRoomCreateDto chatRoomCreateDto = ChatRoomCreateDto.builder()
                 .requestMemberId(1L)
                 .name("chatroomA")
                 .type(PUBLIC)
@@ -151,7 +151,7 @@ class ChatRoomServiceImplTest {
 
 
         //when
-        chatRoomService.create(member, chatRoomCreate);
+        chatRoomService.create(member, chatRoomCreateDto);
         ChatRoom chatRoom = chatRoomService.getById(1L);
 
         //then
@@ -184,7 +184,7 @@ class ChatRoomServiceImplTest {
                 .nickname("memberA nickname")
                 .build();
 
-        ChatRoomCreate chatRoomCreate = ChatRoomCreate.builder()
+        ChatRoomCreateDto chatRoomCreateDto = ChatRoomCreateDto.builder()
                 .requestMemberId(1L)
                 .name("chatroomA")
                 .type(PUBLIC)
@@ -193,7 +193,7 @@ class ChatRoomServiceImplTest {
                 .build();
 
         //when
-        chatRoomService.create(member, chatRoomCreate);
+        chatRoomService.create(member, chatRoomCreateDto);
         List<ChatRoom> allRooms = chatRoomService.findAllRooms(member);
 
         //then
@@ -209,7 +209,7 @@ class ChatRoomServiceImplTest {
                 .nickname("memberA nickname")
                 .build();
 
-        ChatRoomCreate chatRoomCreate = ChatRoomCreate.builder()
+        ChatRoomCreateDto chatRoomCreateDto = ChatRoomCreateDto.builder()
                 .requestMemberId(1L)
                 .name("chatroomA")
                 .type(PUBLIC)
@@ -218,7 +218,7 @@ class ChatRoomServiceImplTest {
                 .build();
 
         //when
-        ChatRoom chatRoom = chatRoomService.create(member, chatRoomCreate);
+        ChatRoom chatRoom = chatRoomService.create(member, chatRoomCreateDto);
         chatRoomService.deleteRoom(member, chatRoom);
         ChatRoom findRoom = chatRoomRepository.getById(chatRoom.getId()).orElseThrow();
 
@@ -242,7 +242,7 @@ class ChatRoomServiceImplTest {
                 .nickname("guest nickname")
                 .build();
 
-        ChatRoomCreate chatRoomCreate = ChatRoomCreate.builder()
+        ChatRoomCreateDto chatRoomCreateDto = ChatRoomCreateDto.builder()
                 .requestMemberId(1L)
                 .name("chatroomA")
                 .type(PUBLIC)
@@ -251,7 +251,7 @@ class ChatRoomServiceImplTest {
                 .build();
 
         //when
-        ChatRoom chatRoom = chatRoomService.create(member, chatRoomCreate);
+        ChatRoom chatRoom = chatRoomService.create(member, chatRoomCreateDto);
 
 
         //then

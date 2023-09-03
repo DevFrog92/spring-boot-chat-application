@@ -1,4 +1,4 @@
-package com.example.chat.domain.common.domain.Exception;
+package com.example.chat.domain.common.Exception;
 
 public class CustomNoSuchElementException extends CustomRuntimeException {
     public CustomNoSuchElementException() {
