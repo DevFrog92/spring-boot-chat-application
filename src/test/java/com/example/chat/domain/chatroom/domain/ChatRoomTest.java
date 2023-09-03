@@ -1,6 +1,6 @@
 package com.example.chat.domain.chatroom.domain;
 
-import com.example.chat.domain.chatroom.dto.ChatRoomCreate;
+import com.example.chat.domain.chatroom.dto.ChatRoomCreateDto;
 import com.example.chat.domain.member.domain.Member;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +18,7 @@ class ChatRoomTest {
                 .nickname("memberA nickname")
                 .build();
 
-        ChatRoomCreate chatroomA = ChatRoomCreate.builder()
+        ChatRoomCreateDto chatroomA = ChatRoomCreateDto.builder()
                 .requestMemberId(1L)
                 .name("chatroomA")
                 .type(PUBLIC)
@@ -47,7 +47,7 @@ class ChatRoomTest {
                 .nickname("memberA nickname")
                 .build();
 
-        ChatRoomCreate chatroomA = ChatRoomCreate.builder()
+        ChatRoomCreateDto chatroomA = ChatRoomCreateDto.builder()
                 .build();
 
         ChatRoom chatRoom = ChatRoom.create(member, chatroomA);
@@ -68,7 +68,7 @@ class ChatRoomTest {
                 .nickname("memberA nickname")
                 .build();
 
-        ChatRoomCreate chatroomA = ChatRoomCreate.builder()
+        ChatRoomCreateDto chatroomA = ChatRoomCreateDto.builder()
                 .build();
 
         ChatRoom chatRoom = ChatRoom.create(member, chatroomA);
@@ -89,7 +89,7 @@ class ChatRoomTest {
                 .nickname("memberA nickname")
                 .build();
 
-        ChatRoomCreate chatroomA = ChatRoomCreate.builder()
+        ChatRoomCreateDto chatroomA = ChatRoomCreateDto.builder()
                 .build();
 
         ChatRoom chatRoom = ChatRoom.create(member, chatroomA);
@@ -111,7 +111,7 @@ class ChatRoomTest {
                 .nickname("memberA nickname")
                 .build();
 
-        ChatRoomCreate chatroomA = ChatRoomCreate.builder()
+        ChatRoomCreateDto chatroomA = ChatRoomCreateDto.builder()
                 .build();
 
         ChatRoom chatRoom = ChatRoom.create(member, chatroomA);
@@ -132,7 +132,7 @@ class ChatRoomTest {
                 .nickname("memberA nickname")
                 .build();
 
-        ChatRoomCreate chatroomA = ChatRoomCreate.builder()
+        ChatRoomCreateDto chatroomA = ChatRoomCreateDto.builder()
                 .secretKey("asde#$%")
                 .build();
 
