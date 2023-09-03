@@ -1,7 +1,7 @@
 package com.example.chat.domain.common.infrastructure;
 
+import com.example.chat.domain.common.Exception.CustomJwtException;
 import com.example.chat.domain.common.service.port.JwtHolder;
-import com.example.chat.domain.common.domain.Exception.CustomJwtException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;

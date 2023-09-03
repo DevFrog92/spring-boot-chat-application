@@ -1,7 +1,7 @@
 package com.example.chat.domain.chatroom.controller.facade;
 
 import com.example.chat.domain.chatroom.domain.ChatRoom;
-import com.example.chat.domain.chatroom.domain.ChatRoomCreate;
+import com.example.chat.domain.chatroom.dto.ChatRoomCreateDto;
 import com.example.chat.domain.chatroom.domain.ParticipationRoom;
 import com.example.chat.domain.chatroom.dto.message.ChatMessageType;
 import com.example.chat.domain.chatroom.service.port.BlackListService;
@@ -10,8 +10,8 @@ import com.example.chat.domain.chatroom.service.port.ChatService;
 import com.example.chat.domain.chatroom.service.port.ParticipationRoomService;
 import com.example.chat.domain.member.domain.Member;
 import com.example.chat.domain.member.service.port.MemberService;
-import com.example.chat.domain.common.domain.Exception.CustomIncorrectPassword;
-import com.example.chat.domain.common.domain.Exception.CustomRuntimeException;
+import com.example.chat.domain.common.Exception.CustomIncorrectPassword;
+import com.example.chat.domain.common.Exception.CustomRuntimeException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -35,9 +35,9 @@ public class ChatRoomFacadeImpl implements ChatRoomFacade {
 
     @Override
     @Transactional
-    public ChatRoom create(ChatRoomCreate chatRoomCreate) {
-        Member member = memberService.getById(chatRoomCreate.getRequestMemberId());
-        return chatRoomService.create(member, chatRoomCreate);
+    public ChatRoom create(ChatRoomCreateDto chatRoomCreateDto) {
+        Member member = memberService.getById(chatRoomCreateDto.getRequestMemberId());
+        return chatRoomService.create(member, chatRoomCreateDto);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class ChatRoomFacadeImpl implements ChatRoomFacade {
             throw new CustomRuntimeException("정상적인 접근이 아닙니다.");
         }
 
-        if (participationRoom.getJoinState()) {
+        if (participationRoom.getJoined()) {
             return;
         }
 
@@ -136,8 +136,8 @@ public class ChatRoomFacadeImpl implements ChatRoomFacade {
     }
 
     @Override
-    public ChatRoom getInfo(Long roomId) {
-        return chatRoomService.getInfo(roomId);
+    public ChatRoom getById(Long roomId) {
+        return chatRoomService.getById(roomId);
     }
 
     @Override

@@ -3,7 +3,7 @@ package com.example.chat.domain.member.service;
 import com.example.chat.domain.member.domain.Member;
 import com.example.chat.domain.member.service.port.MemberRepository;
 import com.example.chat.domain.member.service.port.MemberService;
-import com.example.chat.domain.common.domain.Exception.CustomNoSuchElementException;
+import com.example.chat.domain.common.Exception.CustomNoSuchElementException;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

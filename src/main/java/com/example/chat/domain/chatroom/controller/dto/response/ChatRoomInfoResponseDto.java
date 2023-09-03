@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class ChatRoomInfoResponse {
+public class ChatRoomInfoResponseDto {
     private Long id;
     private String name;
     private String ownerName;
@@ -16,8 +16,8 @@ public class ChatRoomInfoResponse {
     private Integer maxPeopleAllowNum;
     private Integer participationNum;
 
-    public static ChatRoomInfoResponse from(ChatRoom chatRoom) {
-        return ChatRoomInfoResponse.builder()
+    public static ChatRoomInfoResponseDto from(ChatRoom chatRoom) {
+        return ChatRoomInfoResponseDto.builder()
                 .id(chatRoom.getId())
                 .name(chatRoom.getName())
                 .ownerName(chatRoom.getMember().getName())

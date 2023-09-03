@@ -1,6 +1,6 @@
 package com.example.chat.domain.chatroom.domain;
 
-import com.example.chat.domain.common.domain.Exception.CustomRuntimeException;
+import com.example.chat.domain.common.Exception.CustomRuntimeException;
 import com.example.chat.domain.member.domain.Member;
 import lombok.Builder;
 import lombok.Getter;
