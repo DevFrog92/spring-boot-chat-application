@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface BlackListRepository {
     BlackList save(BlackList blackList);
-    Optional<BlackList> findByRoomAndMember(ChatRoom room, Member memberEntity);
+    Optional<BlackList> findByRoomAndMember(ChatRoom room, Member member);
 }
