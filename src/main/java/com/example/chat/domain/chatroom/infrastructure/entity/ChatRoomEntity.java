@@ -45,7 +45,7 @@ public class ChatRoomEntity {
 
     public static ChatRoomEntity fromModel(ChatRoom chatRoom) {
         ChatRoomEntity room = new ChatRoomEntity();
-        room.id = chatRoom.getId(); // fixme 문제가 있을 수 잇음
+        room.id = chatRoom.getId();
         room.name = chatRoom.getName();
         room.isPrivate = chatRoom.getType().equals(ChatRoomType.PRIVATE);
         room.secretCode = chatRoom.getSecretCode();
