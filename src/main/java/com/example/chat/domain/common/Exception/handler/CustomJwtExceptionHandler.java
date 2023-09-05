@@ -1,5 +1,7 @@
-package com.example.chat.domain.common.Exception;
+package com.example.chat.domain.common.Exception.handler;
 
+import com.example.chat.domain.common.Exception.CustomJwtException;
+import com.example.chat.domain.common.Exception.JwtExceptionType;
 import com.example.chat.domain.common.controller.dto.ResponseDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
