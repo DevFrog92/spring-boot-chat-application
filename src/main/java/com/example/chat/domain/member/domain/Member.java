@@ -1,5 +1,7 @@
 package com.example.chat.domain.member.domain;
 
+import com.example.chat.domain.member.dto.MemberCreate;
+import com.example.chat.domain.member.dto.MemberUpdate;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,7 +12,9 @@ public class Member {
     private final String nickname;
 
     @Builder
-    public Member(Long id, String name, String nickname) {
+    public Member(final Long id,
+                  final String name,
+                  final String nickname) {
         this.id = id;
         this.name = name;
         this.nickname = nickname;

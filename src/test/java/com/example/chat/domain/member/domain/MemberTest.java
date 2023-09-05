@@ -1,5 +1,7 @@
 package com.example.chat.domain.member.domain;
 
+import com.example.chat.domain.member.dto.MemberCreate;
+import com.example.chat.domain.member.dto.MemberUpdate;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -15,11 +15,11 @@ public class ChatRoomCreateDto {
     private Integer maxChatRoomSize;
 
     @Builder
-    public ChatRoomCreateDto(Long requestMemberId,
-                             String name,
-                             ChatRoomType type,
-                             String secretKey,
-                             Integer maxPeopleAllowNum) { // todo 변경
+    public ChatRoomCreateDto(final Long requestMemberId,
+                             final String name,
+                             final ChatRoomType type,
+                             final String secretKey,
+                             final Integer maxPeopleAllowNum) {
         this.requestMemberId = requestMemberId;
         this.name = name;
         this.type = type;

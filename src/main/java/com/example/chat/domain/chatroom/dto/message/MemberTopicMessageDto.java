@@ -13,7 +13,8 @@ public class MemberTopicMessageDto implements ChatMessage {
     private Long memberId;
 
     @Builder
-    public MemberTopicMessageDto(ChatMessageType type, Long memberId) {
+    public MemberTopicMessageDto(final ChatMessageType type,
+                                 final Long memberId) {
         this.type = type;
         this.memberId = memberId;
     }

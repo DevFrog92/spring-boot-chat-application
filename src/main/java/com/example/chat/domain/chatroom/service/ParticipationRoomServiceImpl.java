@@ -4,6 +4,7 @@ import com.example.chat.domain.chatroom.domain.ChatRoom;
 import com.example.chat.domain.chatroom.domain.ParticipationRoom;
 import com.example.chat.domain.chatroom.service.port.ParticipationChatRoomRepository;
 import com.example.chat.domain.chatroom.service.port.ParticipationRoomService;
+import com.example.chat.domain.common.Exception.CustomIncorrectPassword;
 import com.example.chat.domain.member.domain.Member;
 import com.example.chat.domain.common.Exception.CustomNoSuchElementException;
 import lombok.Builder;
@@ -23,29 +24,36 @@ public class ParticipationRoomServiceImpl implements ParticipationRoomService {
 
     @Override
     public ParticipationRoom getByMemberAndRoom(Member member, ChatRoom room) {
-        return participationRoomRepository.getByMemberAndRoom(member, room).orElse(null);
+        return participationRoomRepository
+                .getByMemberAndRoom(member, room).orElse(null);
     }
 
     @Override
     @Transactional
     public void join(Member member, ChatRoom room) {
-        ParticipationRoom participationRoom = participationRoomRepository.getByMemberAndRoom(member, room)
-                .orElseThrow(() -> new CustomNoSuchElementException("Participation info does not exist"));
+        ParticipationRoom participationRoom = participationRoomRepository
+                .getByMemberAndRoom(member, room)
+                .orElseThrow(CustomNoSuchElementException::new);
         participationRoom = participationRoom.join(member, room);
         saveParticipationRoom(participationRoom);
     }
 
     @Transactional
     public void create(Member member, ChatRoom room) {
-        ParticipationRoom participationRoom = ParticipationRoom.create(member, room);
+        ParticipationRoom participationRoom =
+                ParticipationRoom.create(member, room);
         saveParticipationRoom(participationRoom);
     }
 
     @Override
     @Transactional
-    public void submitSecretKey(Member member, ChatRoom room, String code) {
-        ParticipationRoom participationRoom = ParticipationRoom.create(member, room);
-        participationRoom = participationRoom.certificate(code);
+    public void submitSecretKey(Member member, ChatRoom chatRoom, String code) {
+        if(!chatRoom.checkCode(code)) {
+            throw new CustomIncorrectPassword();
+        }
+
+        ParticipationRoom participationRoom = ParticipationRoom.create(member, chatRoom);
+        participationRoom = participationRoom.certification();
         saveParticipationRoom(participationRoom);
     }
 
@@ -56,18 +64,22 @@ public class ParticipationRoomServiceImpl implements ParticipationRoomService {
     @Override
     @Transactional
     public boolean isCertifiedMember(Member member, ChatRoom room) {
-        Optional<ParticipationRoom> participationRoom = participationRoomRepository
-                .getByMemberAndRoom(member, room);
+        Optional<ParticipationRoom> participationRoom =
+                participationRoomRepository.getByMemberAndRoom(member, room);
 
-        return participationRoom.map(ParticipationRoom::getSubmitKey).orElse(false);
+        return participationRoom
+                .map(ParticipationRoom::getSubmitKey)
+                .orElse(false);
     }
 
     @Transactional
     public boolean alreadyJoined(Member member, ChatRoom room) {
-        Optional<ParticipationRoom> participationRoom = participationRoomRepository
-                .getByMemberAndRoom(member, room);
+        Optional<ParticipationRoom> participationRoom =
+                participationRoomRepository.getByMemberAndRoom(member, room);
 
-        return participationRoom.map(ParticipationRoom::getJoined).orElse(false);
+        return participationRoom
+                .map(ParticipationRoom::getJoined)
+                .orElse(false);
     }
 
     @Override

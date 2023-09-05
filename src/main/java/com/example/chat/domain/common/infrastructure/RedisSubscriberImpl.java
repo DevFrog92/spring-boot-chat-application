@@ -3,6 +3,7 @@ package com.example.chat.domain.common.infrastructure;
 import com.example.chat.domain.chatroom.dto.message.ChatMessageDto;
 import com.example.chat.domain.chatroom.dto.message.ChatRoomInfoDto;
 import com.example.chat.domain.chatroom.dto.message.MemberTopicMessageDto;
+import com.example.chat.domain.common.Exception.CustomMessageSendException;
 import com.example.chat.domain.common.service.port.RedisSubscribe;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,6 @@ public class RedisSubscriberImpl implements RedisSubscribe {
     private final ObjectMapper om;
     private final SimpMessageSendingOperations messagingTemplate;
 
-    // todo exception handle -> message push fail -> internal exception
     public void sendMessage(String publishMessage) {
         try {
             ChatMessageDto chatMessage = om.readValue(publishMessage, ChatMessageDto.class);
@@ -27,6 +27,7 @@ public class RedisSubscriberImpl implements RedisSubscribe {
 
         } catch (Exception e) {
             log.error(e.getMessage());
+            throw new CustomMessageSendException();
         }
     }
 
@@ -39,6 +40,7 @@ public class RedisSubscriberImpl implements RedisSubscribe {
             );
         } catch (Exception e) {
             log.error(e.getMessage());
+            throw new CustomMessageSendException();
         }
     }
 
@@ -55,6 +57,7 @@ public class RedisSubscriberImpl implements RedisSubscribe {
 
         } catch (Exception e) {
             log.error(e.getMessage());
+            throw new CustomMessageSendException();
         }
     }
 }

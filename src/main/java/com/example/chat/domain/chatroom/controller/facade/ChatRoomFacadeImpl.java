@@ -1,17 +1,19 @@
 package com.example.chat.domain.chatroom.controller.facade;
 
+import com.example.chat.domain.chatroom.controller.dto.response.ChatRoomInfoResponseDto;
 import com.example.chat.domain.chatroom.domain.ChatRoom;
-import com.example.chat.domain.chatroom.dto.ChatRoomCreateDto;
 import com.example.chat.domain.chatroom.domain.ParticipationRoom;
+import com.example.chat.domain.chatroom.dto.ChatRoomCreateDto;
 import com.example.chat.domain.chatroom.dto.message.ChatMessageType;
 import com.example.chat.domain.chatroom.service.port.BlackListService;
 import com.example.chat.domain.chatroom.service.port.ChatRoomService;
 import com.example.chat.domain.chatroom.service.port.ChatService;
 import com.example.chat.domain.chatroom.service.port.ParticipationRoomService;
+import com.example.chat.domain.common.Exception.CustomIncorrectPassword;
+import com.example.chat.domain.common.Exception.CustomNotAllowAccess;
 import com.example.chat.domain.member.domain.Member;
 import com.example.chat.domain.member.service.port.MemberService;
-import com.example.chat.domain.common.Exception.CustomIncorrectPassword;
-import com.example.chat.domain.common.Exception.CustomRuntimeException;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -19,12 +21,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.example.chat.domain.chatroom.controller.facade.PermissionType.*;
 import static com.example.chat.domain.chatroom.domain.ChatRoomType.PRIVATE;
 
 @Slf4j
 @Component
+@Builder
 @RequiredArgsConstructor
 public class ChatRoomFacadeImpl implements ChatRoomFacade {
     private final MemberService memberService;
@@ -35,9 +39,13 @@ public class ChatRoomFacadeImpl implements ChatRoomFacade {
 
     @Override
     @Transactional
-    public ChatRoom create(ChatRoomCreateDto chatRoomCreateDto) {
-        Member member = memberService.getById(chatRoomCreateDto.getRequestMemberId());
-        return chatRoomService.create(member, chatRoomCreateDto);
+    public ChatRoomInfoResponseDto create(ChatRoomCreateDto chatRoomCreateDto) {
+        Member member = memberService
+                .getById(chatRoomCreateDto.getRequestMemberId());
+
+        return ChatRoomInfoResponseDto.from(
+                chatRoomService.create(member, chatRoomCreateDto)
+        );
     }
 
     @Override
@@ -47,9 +55,10 @@ public class ChatRoomFacadeImpl implements ChatRoomFacade {
         ChatRoom chatRoom = chatRoomService.getById(roomId);
 
         if (blackListService.isMemberInBlackList(member, chatRoom)) {
-            throw new CustomRuntimeException("정상적인 접근이 아닙니다.");
+            throw new CustomNotAllowAccess();
         }
 
+        // todo is possible to remove if statement?
         if (chatRoom.getType().equals(PRIVATE)) {
             enterPrivate(member, chatRoom);
         } else {
@@ -76,7 +85,7 @@ public class ChatRoomFacadeImpl implements ChatRoomFacade {
                 .getByMemberAndRoom(member, chatRoom);
 
         if (participationRoom == null) {
-            throw new CustomRuntimeException("정상적인 접근이 아닙니다.");
+            throw new CustomNotAllowAccess();
         }
 
         if (participationRoom.getJoined()) {
@@ -129,23 +138,29 @@ public class ChatRoomFacadeImpl implements ChatRoomFacade {
         ChatRoom chatroom = chatRoomService.getById(roomId);
 
         if (!chatroom.checkCode(code)) {
-            throw new CustomIncorrectPassword("비밀번호가 틀렸습니다.");
+            throw new CustomIncorrectPassword();
         }
 
         participationRoomService.submitSecretKey(member, chatroom, code);
     }
 
     @Override
-    public ChatRoom getById(Long roomId) {
-        return chatRoomService.getById(roomId);
+    public ChatRoomInfoResponseDto getById(Long roomId) {
+        return ChatRoomInfoResponseDto.from(chatRoomService.getById(roomId));
     }
 
     @Override
-    public List<ChatRoom> findAllRooms(String memberName) {
+    public List<ChatRoomInfoResponseDto> findAllRooms(String memberName) {
         Member member = memberService.getByName(memberName);
-        return chatRoomService.findAllRooms(member);
+
+        return chatRoomService
+                .findAllRooms(member)
+                .stream()
+                .map(ChatRoomInfoResponseDto::from)
+                .collect(Collectors.toList());
     }
 
+    // todo it is duplicate code to compare enter method?
     @Override
     @Transactional
     public PermissionType checkPermission(Long roomId, Long memberId) {

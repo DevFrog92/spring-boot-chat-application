@@ -7,7 +7,6 @@ import com.example.chat.domain.chatroom.controller.dto.response.ChatRoomInfoResp
 import com.example.chat.domain.chatroom.controller.dto.response.PermissionResponseDto;
 import com.example.chat.domain.chatroom.controller.facade.ChatRoomFacade;
 import com.example.chat.domain.chatroom.controller.facade.PermissionType;
-import com.example.chat.domain.chatroom.domain.ChatRoom;
 import com.example.chat.domain.chatroom.dto.ChatRoomCreateDto;
 import com.example.chat.domain.common.controller.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -31,10 +29,7 @@ public class ChatRoomApiController {
     public ResponseEntity<?> rooms(Authentication auth) {
         String name = auth.getName();
         List<ChatRoomInfoResponseDto> allRooms =
-                chatRoomFacade.findAllRooms(name)
-                        .stream()
-                        .map(ChatRoomInfoResponseDto::from)
-                        .collect(Collectors.toList());
+                chatRoomFacade.findAllRooms(name);
 
         return new ResponseEntity<>(
                 new ResponseDto<>(
@@ -47,32 +42,38 @@ public class ChatRoomApiController {
 
     @GetMapping("/room/{roomId}")
     public ResponseEntity<?> roomInfo(@PathVariable Long roomId) {
-        ChatRoom chatroom = chatRoomFacade.getById(roomId);
+        ChatRoomInfoResponseDto chatroomInfo =
+                chatRoomFacade.getById(roomId);
 
         return new ResponseEntity<>(
                 new ResponseDto<>(
                         "채팅방 정보를 조회했습니다.",
-                        ChatRoomInfoResponseDto.from(chatroom)
+                        chatroomInfo
                 ),
                 HttpStatus.OK
         );
     }
 
     @PostMapping("/room")
-    public ResponseEntity<?> createRoom(@RequestBody ChatRoomCreateDto chatRoomCreateDto) {
-        ChatRoom chatRoom = chatRoomFacade.create(chatRoomCreateDto);
+    public ResponseEntity<?> createRoom(
+            @RequestBody ChatRoomCreateDto chatRoomCreateDto) {
+
+        ChatRoomInfoResponseDto chatroomInfo =
+                chatRoomFacade.create(chatRoomCreateDto);
 
         return new ResponseEntity<>(
                 new ResponseDto<>(
                         "채팅방 개설을 성공했습니다.",
-                        ChatRoomInfoResponseDto.from(chatRoom)
+                        chatroomInfo
                 ),
                 HttpStatus.OK
         );
     }
 
     @PostMapping("/key")
-    public ResponseEntity<?> submitSecretKey(@RequestBody RequestSubmitCodeDto requestSubmitCode) {
+    public ResponseEntity<?> submitSecretKey(
+            @RequestBody RequestSubmitCodeDto requestSubmitCode) {
+
         Long memberId = requestSubmitCode.getMemberId();
         Long roomId = requestSubmitCode.getRoomId();
         String code = requestSubmitCode.getSecretCode();
@@ -93,7 +94,6 @@ public class ChatRoomApiController {
         Long roomId = requestDto.getRoomId();
 
         chatRoomFacade.delete(memberId, roomId);
-        // todo send chat message to all rooms
 
         return new ResponseEntity<>(
                 new ResponseDto<>(
@@ -108,7 +108,10 @@ public class ChatRoomApiController {
         PermissionType type = chatRoomFacade.checkPermission(
                 requestDto.getRoomId(), requestDto.getRequestMemberId());
 
-        String message = type.equals(PermissionType.ALLOW) ? "인증에 성공했습니다." : "인증에 실패했습니다.";
+        // todo What about occur exception ?
+        String message = type.equals(PermissionType.ALLOW)
+                ? "인증에 성공했습니다."
+                : "인증에 실패했습니다.";
 
         return new ResponseEntity<>(
                 new ResponseDto<>(
@@ -137,7 +140,7 @@ public class ChatRoomApiController {
 
         return new ResponseEntity<>(
                 new ResponseDto<>(
-                        "성공적으로 입장했습니다.",
+                        "성공적으로 퇴장했습니다.",
                         null
                 ),
                 HttpStatus.OK

@@ -12,7 +12,8 @@ public class MemberInfoResponse {
     private String nickname;
     private String token;
 
-    public static MemberInfoResponse from(Member member, String token) {
+    public static MemberInfoResponse from(final Member member,
+                                          final String token) {
         return MemberInfoResponse.builder()
                 .id(member.getId())
                 .name(member.getName())

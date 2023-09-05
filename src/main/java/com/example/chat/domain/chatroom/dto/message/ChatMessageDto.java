@@ -13,10 +13,10 @@ public class ChatMessageDto implements ChatMessage {
     private String message;
 
     @Builder
-    public ChatMessageDto(ChatMessageType type,
-                          Long roomId,
-                          String sender,
-                          String message) {
+    public ChatMessageDto(final ChatMessageType type,
+                          final Long roomId,
+                          final String sender,
+                          final String message) {
         this.type = type;
         this.roomId = roomId;
         this.sender = sender;

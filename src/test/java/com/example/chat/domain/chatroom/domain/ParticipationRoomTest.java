@@ -109,7 +109,7 @@ class ParticipationRoomTest {
     }
 
     @Test
-    void certification_메서드는_secretCode를_파라미터로_받아_채팅방의_secretCode_와_맞으면_submitKey_값이_true_인_객체를_반환한다() {
+    void certification_메서드는_submitKey_값이_true_인_객체를_반환한다() {
         //given
         Member member = Member.builder()
                 .id(1L)
@@ -130,40 +130,12 @@ class ParticipationRoomTest {
         ParticipationRoom participationRoom = ParticipationRoom.create(member, chatroom);
 
         //when
-        participationRoom = participationRoom.certificate("asde#$%");
+        participationRoom = participationRoom.certification();
 
         //then
         assertThat(participationRoom.getJoined()).isFalse();
         assertThat(participationRoom.getSubmitKey()).isTrue();
         assertThat(participationRoom.getMember()).isEqualTo(member);
         assertThat(participationRoom.getChatRoom()).isEqualTo(chatroom);
-    }
-
-    @Test
-    void certification_메서드는_secretCode를_파라미터로_받아_채팅방의_secretCode_와_다르면_예외를_발생시킨다() {
-        //given
-        Member member = Member.builder()
-                .id(1L)
-                .name("memberA")
-                .nickname("memberA nickname")
-                .build();
-
-        ChatRoom chatroom = ChatRoom.builder()
-                .id(1L)
-                .name("chatroomA")
-                .type(PUBLIC)
-                .secretCode("asde#$%")
-                .maxChatRoomSize(100)
-                .participationNum(0)
-                .member(member)
-                .build();
-
-        ParticipationRoom participationRoom = ParticipationRoom.create(member, chatroom);
-
-        //when
-        //then
-        assertThatThrownBy(() -> {
-            participationRoom.certificate("qwer");
-        }).isInstanceOf(CustomRuntimeException.class);
     }
 }

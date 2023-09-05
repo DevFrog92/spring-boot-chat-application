@@ -16,17 +16,18 @@ public class BlackList {
     private LocalDateTime registrationAt;
 
     @Builder
-    public BlackList(Long id,
-                     ChatRoom room,
-                     Member member,
-                     LocalDateTime registrationAt) {
+    public BlackList(final Long id,
+                     final ChatRoom room,
+                     final Member member,
+                     final LocalDateTime registrationAt) {
         this.id = id;
         this.room = room;
         this.member = member;
         this.registrationAt = registrationAt;
     }
 
-    public static BlackList create(Member member, ChatRoom room) {
+    public static BlackList create(final Member member,
+                                   final ChatRoom room) {
         return BlackList.builder()
                 .room(room)
                 .member(member)
