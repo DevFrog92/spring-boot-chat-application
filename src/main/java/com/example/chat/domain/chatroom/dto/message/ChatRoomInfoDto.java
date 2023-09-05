@@ -16,7 +16,8 @@ public class ChatRoomInfoDto implements ChatMessage {
     private Integer participationNum;
 
     @Builder
-    public ChatRoomInfoDto(Long roomId, Integer participationNum) {
+    public ChatRoomInfoDto(final Long roomId,
+                           final Integer participationNum) {
         this.type = INFO;
         this.roomId = roomId;
         this.participationNum = participationNum;

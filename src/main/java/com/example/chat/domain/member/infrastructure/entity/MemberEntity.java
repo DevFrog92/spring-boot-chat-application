@@ -23,7 +23,7 @@ public class MemberEntity {
     @Column(name = "nickname")
     private String nickname;
 
-    public static MemberEntity fromModel(Member member) {
+    public static MemberEntity fromModel(final Member member) {
         return MemberEntity.builder()
                 .id(member.getId())
                 .name(member.getName())

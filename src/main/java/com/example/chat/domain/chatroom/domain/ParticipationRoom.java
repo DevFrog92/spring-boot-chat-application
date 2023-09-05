@@ -1,12 +1,9 @@
 package com.example.chat.domain.chatroom.domain;
 
-import com.example.chat.domain.common.Exception.CustomRuntimeException;
 import com.example.chat.domain.member.domain.Member;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.Objects;
 
 @Getter
 @NoArgsConstructor
@@ -18,11 +15,11 @@ public class ParticipationRoom {
     private Boolean joined;
 
     @Builder
-    public ParticipationRoom(Long id,
-                             Member member,
-                             ChatRoom chatRoom,
-                             Boolean submitKey,
-                             Boolean joined) {
+    public ParticipationRoom(final Long id,
+                             final Member member,
+                             final ChatRoom chatRoom,
+                             final Boolean submitKey,
+                             final Boolean joined) {
         this.id = id;
         this.member = member;
         this.chatRoom = chatRoom;
@@ -30,8 +27,8 @@ public class ParticipationRoom {
         this.joined = joined;
     }
 
-    public static ParticipationRoom create(Member member,
-                                           ChatRoom chatRoom) {
+    public static ParticipationRoom create(final Member member,
+                                           final ChatRoom chatRoom) {
         return ParticipationRoom.builder()
                 .member(member)
                 .chatRoom(chatRoom)
@@ -40,8 +37,8 @@ public class ParticipationRoom {
                 .build();
     }
 
-    public ParticipationRoom join(Member member,
-                                  ChatRoom chatRoom) {
+    public ParticipationRoom join(final Member member,
+                                  final ChatRoom chatRoom) {
         return ParticipationRoom.builder()
                 .id(id)
                 .member(member)
@@ -51,11 +48,7 @@ public class ParticipationRoom {
                 .build();
     }
 
-    public ParticipationRoom certificate(String secretCode) {
-        if (!Objects.equals(this.chatRoom.getSecretCode(), secretCode)) {
-            throw new CustomRuntimeException("The code is bad! "); // fixme
-        }
-
+    public ParticipationRoom certification() {
         return ParticipationRoom.builder()
                 .id(id)
                 .member(member)

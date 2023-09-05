@@ -42,8 +42,8 @@ public class ChatRoom {
         this.member = member;
     }
 
-    public static ChatRoom create(Member member,
-                                  ChatRoomCreateDto chatRoomCreateDto) {
+    public static ChatRoom create(final Member member,
+                                  final ChatRoomCreateDto chatRoomCreateDto) {
         return ChatRoom.builder()
                 .name(chatRoomCreateDto.getName())
                 .type(chatRoomCreateDto.getType())
@@ -82,7 +82,7 @@ public class ChatRoom {
                 .build();
     }
 
-    public boolean checkCode(String code) {
+    public boolean checkCode(final String code) {
         return secretCode.equals(code);
     }
 
