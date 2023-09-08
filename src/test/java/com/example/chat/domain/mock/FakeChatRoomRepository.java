@@ -41,7 +41,7 @@ public class FakeChatRoomRepository implements ChatRoomRepository {
     }
 
     @Override
-    public void deletById(long id) {
+    public void deleteById(long id) {
         ChatRoom findChatRoom = store.stream()
                 .filter(chatRoom -> Objects.equals(chatRoom.getId(), id))
                 .findAny().orElseThrow();

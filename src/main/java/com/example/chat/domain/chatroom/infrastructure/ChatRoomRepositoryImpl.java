@@ -36,7 +36,7 @@ public class ChatRoomRepositoryImpl implements ChatRoomRepository {
     }
 
     @Override
-    public void deletById(long id) {
+    public void deleteById(long id) {
         chatRoomJpaRepository.deleteById(id);
     }
 }
