@@ -1,15 +1,12 @@
 package com.example.chat.domain.chatroom.dto.message;
 
-import com.example.chat.domain.chatroom.dto.message.ChatMessage;
-import com.example.chat.domain.chatroom.dto.message.ChatMessageType;
 import lombok.*;
 
 import static com.example.chat.domain.chatroom.dto.message.ChatMessageType.INFO;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChatRoomInfoDto implements ChatMessage {
     private ChatMessageType type;
     private Long roomId;

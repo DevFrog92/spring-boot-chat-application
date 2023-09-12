@@ -48,7 +48,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             throw new CustomOutOfPermissionException();
         }
 
-        chatRoomRepository.deletById(chatRoom.getId());
+        chatRoomRepository.deleteById(chatRoom.getId());
     }
 
     @Override

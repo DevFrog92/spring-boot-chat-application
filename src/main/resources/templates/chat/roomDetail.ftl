@@ -231,7 +231,6 @@
                 });
         },
         beforeDestroy() {
-            console.log("destroy");
             this.clearLocalhost();
         },
         computed: {

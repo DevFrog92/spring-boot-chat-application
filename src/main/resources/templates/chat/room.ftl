@@ -138,7 +138,7 @@
                 });
             },
             async getMemberInfo () {
-                await axios.get('/member').then(response => {
+                await axios.get('/api/member').then(response => {
                     this.memberInfo = response.data.body;
                     localStorage.setItem('memberInfo', JSON.stringify(response.data.body));
                 });

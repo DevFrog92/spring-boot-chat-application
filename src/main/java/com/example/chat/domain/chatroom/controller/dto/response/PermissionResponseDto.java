@@ -1,12 +1,13 @@
 package com.example.chat.domain.chatroom.controller.dto.response;
 
 import com.example.chat.domain.chatroom.controller.facade.PermissionType;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PermissionResponseDto {
     private PermissionType type;
 
