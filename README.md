@@ -2,19 +2,6 @@
 
 Redis와 Stomp를 이용한 기본적인 실시간 채팅 애플리케이션
 
-### 메인 기술 스택
-
-- Java 11
-- Spring Boot 2.x.x
-- WebSocket/Stomp
-- JPA
-- MySQL
-- H2
-- Redis Pub/Sub
-- Spring Security
-- Vue
-- Freemarker
-
 ### 주요 기능
 
 - 사용자 기능
@@ -44,21 +31,36 @@ Redis와 Stomp를 이용한 기본적인 실시간 채팅 애플리케이션
         - 채팅방 관리자는 참여자를 강퇴시킬 수 있다.
         - 강퇴 당한 사용자는 블랙리스트에 추가된다.
 
+### 메인 기술 스택
+
+- Java 11
+- Spring Boot 2.x.x
+- WebSocket/Stomp
+- JPA
+- MySQL
+- H2
+- Redis Pub/Sub
+- Spring Security
+- Vue
+- Freemarker
+
 ### ERD
 
-![Screenshot 2023-08-26 at 12 00 09 AM](https://github.com/DevFrog92/spring-boot-chat-application/assets/82052272/7ff83cda-5614-4d76-9a09-e23ef44e9133)
+<img src="https://github.com/DevFrog92/spring-boot-chat-application/assets/82052272/3aa7315a-ed8e-4ba8-9180-e433df9e579a" width="450">
 
 ### Diagram
 
-![diagram](https://github.com/DevFrog92/spring-boot-chat-application/assets/82052272/a431d40f-b4d2-4dcf-bb7d-c7d2207671af)
-
+<img src="https://github.com/DevFrog92/spring-boot-chat-application/assets/82052272/b086a4f8-140d-4382-914f-7d0bd782c495" width="450">
 
 ### ScreenShot
 
 - room
-  
-  ![Screenshot 2023-08-25 at 11 31 01 PM](https://github.com/DevFrog92/spring-boot-chat-application/assets/82052272/26ab5051-15a9-4808-95d8-8b0b0d63aadf)
+<br/>
+<img src="https://github.com/DevFrog92/spring-boot-chat-application/assets/82052272/31898579-5ea6-4532-b67d-456bdd8c1e23" width="450">
 
+- roomDetail
+<br/>
+<img src="https://github.com/DevFrog92/spring-boot-chat-application/assets/82052272/934a9619-d170-43cb-a1e6-6f89a34dbc46" width="450">
 
 ### Reference
 - https://www.daddyprogrammer.org/post/4731/spring-websocket-chatting-server-redis-pub-sub/
