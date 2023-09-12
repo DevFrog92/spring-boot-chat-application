@@ -48,6 +48,11 @@ Redis와 Stomp를 이용한 기본적인 실시간 채팅 애플리케이션
 
 ![Screenshot 2023-08-26 at 12 00 09 AM](https://github.com/DevFrog92/spring-boot-chat-application/assets/82052272/7ff83cda-5614-4d76-9a09-e23ef44e9133)
 
+### Diagram
+
+![diagram](https://github.com/DevFrog92/spring-boot-chat-application/assets/82052272/a431d40f-b4d2-4dcf-bb7d-c7d2207671af)
+
+
 ### ScreenShot
 
 - room
