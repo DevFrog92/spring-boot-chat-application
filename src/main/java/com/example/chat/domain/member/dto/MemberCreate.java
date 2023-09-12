@@ -1,12 +1,15 @@
 package com.example.chat.domain.member.dto;
 
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberCreate {
-    private final String name;
-    private final String nickName;
+    private String name;
+    private String nickName;
 
     @Builder
     public MemberCreate(String name, String nickName) {

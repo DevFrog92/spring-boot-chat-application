@@ -8,5 +8,4 @@ public interface MemberRepository {
     Optional<Member> getById(Long id);
     Optional<Member> getByName(String name);
     Member save(Member member);
-
 }
